@@ -1,0 +1,12 @@
+[submodule "reference/MimiC"]
+	path = reference/MimiC
+	url = https://github.com/ustb-owl/MimiC.git
+[submodule "reference/first-step"]
+	path = reference/first-step
+	url = https://github.com/pku-minic/first-step.git
+[submodule "docs/online-doc"]
+	path = docs/online-doc
+	url = https://github.com/pku-minic/online-doc.git
+[submodule "VM"]
+	path = VM
+	url = https://github.com/pku-minic/MiniVM.git
