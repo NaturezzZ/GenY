@@ -1,4 +1,15 @@
-.DS_Store
+# macOS
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# vscode
+.vscode
+
+# debug
+build
+debug
+
 # Prerequisites
 *.d
 
