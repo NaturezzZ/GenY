@@ -10,3 +10,6 @@
 [submodule "VM"]
 	path = VM
 	url = https://github.com/pku-minic/MiniVM.git
+[submodule "3rdparty/xstl"]
+	path = 3rdparty/xstl
+	url = https://github.com/MaxXSoft/XSTL

@@ -6,6 +6,10 @@
 # vscode
 .vscode
 
+# jetbrain
+.idea
+cmake-build-debug
+
 # debug
 build
 debug
