@@ -15,7 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(MSVC)
   add_compile_options(/W3 /WX)
 else()
-  add_compile_options(-Wall)
+  add_compile_options(-Wall -O2)
 endif()
 
 # some definitions
@@ -31,6 +31,7 @@ include_directories(3rdparty/xstl)
 
 # all of C++ source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
-
+file(GLOB_RECURSE FRONTEND "src/frontend/*.cpp")
 # executable
-add_executable(geny ${SOURCES})
+# add_executable(geny ${SOURCES})
+add_executable(frontend ${FRONTEND})
