@@ -2,3 +2,4 @@
 - [https://github.com/Pkuwhr/SysY_compiler](https://github.com/Pkuwhr/SysY_compiler)
 - [https://github.com/qingyunqu/MiniC](https://github.com/qingyunqu/MiniC)
 - [https://github.com/HugoZHL/Simple_Compiler](https://github.com/HugoZHL/Simple_Compiler)
+- [lex and yacc tutorial](https://www.cnblogs.com/wp5719/p/5528896.html)
