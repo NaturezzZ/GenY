@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.13)
 project(GenY VERSION "0.0.0")
 
 # # set compiler path
-# set(CMAKE_C_COMPILER "/usr/local/opt/gcc/bin/gcc-9")
-# set(CMAKE_CXX_COMPILER "/usr/local/opt/gcc/bin/g++-9")
-# set(CMAKE_CXX_COMPILER_ID "GNU")
+#set(CMAKE_C_COMPILER "/usr/bin/cc")
+#set(CMAKE_CXX_COMPILER "/usr/bin/c++")
+#set(CMAKE_CXX_COMPILER_ID "Apple Clang")
 
 # C++17 standard support
 set(CMAKE_CXX_STANDARD 17)

@@ -31,7 +31,7 @@ whitespace	[ \t]
 "const"     { dprintf(stderr,"const");return CONST;}
 
 {number}+		{ dprintf(stderr,"%s",yytext);sscanf(yytext,"%d",&yylval.int_value); return INT_CONSTANT; } //???judge yytext is a legal digit
-{identifier} 	{ dprintf(stderr,"%s",yytext);yylval.string_value = strdup(yytext); return IDENTIFIER; }//???check type  ???free
+{identifier} 	{ dprintf(stderr,"%s",yytext);yylval.string_value = strdup(yytext); return IDENT; }//???check type  ???free
 
 "&&"	{ dprintf(stderr,"&&");return OP_AND; }
 "||"	{ dprintf(stderr,"||");return OP_OR; }
