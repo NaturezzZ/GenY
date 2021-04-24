@@ -7,15 +7,19 @@ project(GenY VERSION "0.0.0")
 #set(CMAKE_CXX_COMPILER_ID "Apple Clang")
 
 # C++17 standard support
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # enable all warnings and treat them as errors
 if(MSVC)
   add_compile_options(/W3 /WX)
+elseif(APPLE)
+  MESSAGE(STATUS "This is apple")
+  add_compile_options(-Wall -O2 -ll)
 else()
-  add_compile_options(-Wall -O2)
+  MESSAGE(STATUS "This is Linux")
+  add_compile_options(-Wall -O2 -lfl)
 endif()
 
 # some definitions
@@ -30,8 +34,10 @@ include_directories(src)
 include_directories(3rdparty/xstl)
 
 # all of C++ source files
-file(GLOB_RECURSE SOURCES "src/*.cpp")
-file(GLOB_RECURSE FRONTEND "src/frontend/*.cpp")
+file(GLOB_RECURSE SOURCES_C "src/*.c")
+file(GLOB_RECURSE SOURCES_CXX "src/*.cpp")
+
+set_source_files_properties(${SOURCES_C} PROPERTIES LANGUAGE CXX )
+
 # executable
-# add_executable(geny ${SOURCES})
-add_executable(frontend ${FRONTEND})
+add_executable(frontend ${SOURCES_C} ${SOURCES_CXX} src/define/util.h)

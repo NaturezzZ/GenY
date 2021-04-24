@@ -1,16 +1,16 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <bits/stdc++.h>
+#include "define/ast.h"
+#include "define/type.h"
+#include "define/util.h"
+
 extern int lineno;
 extern FILE*yyout;
 void yyerror(const char*);
 int yylex(void);
 void gen_eeyore();
-
-int nodecnt = 0;
-TreeNode* root;
-TreeNode node[MAXTREENODE];  //should judge nodecnt < MAXTREENODE
-void insert(TreeNode*f,TreeNode*c);
 %}
 %union{
 	int		int_value;

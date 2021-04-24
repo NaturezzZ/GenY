@@ -1,7 +1,11 @@
 %{
  // Part I-a, C definition
 #include <stdio.h>
-#include "y.tab.h"
+#include "frontend/sysy.tab.h"
+#include "define/ast.h"
+#include "define/type.h"
+#include "define/util.h"
+
 void yyerror(const char*);
 int yywrap();
 int lineno = 1;
