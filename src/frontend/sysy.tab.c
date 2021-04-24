@@ -116,7 +116,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <bits/stdc++.h>
+
 #include "define/ast.h"
 #include "define/type.h"
 #include "define/util.h"
@@ -124,8 +124,12 @@
 extern int lineno;
 extern FILE*yyout;
 void yyerror(const char*);
-int yylex(void);
-void gen_eeyore();
+//int yylex(void);
+extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需要使用的C函数，其声明都包括在extern "C"{}块里面，这样C++链接时才能成功链接它们。extern "C"用来在C++环境下设置C链接类型。
+{   //lex.l中也有类似的这段extern "C"，可以把它们合并成一段，放到共同的头文件main.h中
+    //void yyerror(const char *s);
+    extern int yylex(void);//该函数是在lex.yy.c里定义的，yyparse()里要调用该函数，为了能编译和链接，必须用extern加以声明
+}
 
 
 /* Enabling traces.  */
@@ -148,14 +152,13 @@ void gen_eeyore();
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 15 "sysy.y"
+#line 19 "sysy.y"
 {
 	int		int_value;
 	char *	string_value;
-	TreeNode * node_value;
 }
 /* Line 193 of yacc.c.  */
-#line 159 "sysy.tab.c"
+#line 162 "sysy.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -168,7 +171,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 172 "sysy.tab.c"
+#line 175 "sysy.tab.c"
 
 #ifdef short
 # undef short
@@ -489,16 +492,16 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    44,    44,    47,    48,    49,    50,    53,    54,    57,
-      62,    63,    66,    71,    72,    75,    76,    77,    80,    81,
-      84,    89,    90,    93,    94,    97,    98,    99,   104,   105,
-     108,   109,   110,   111,   118,   119,   122,   123,   127,   128,
-     131,   134,   135,   138,   139,   169,   170,   171,   172,   173,
-     174,   175,   176,   177,   178,   179,   182,   185,   188,   191,
-     192,   193,   196,   199,   200,   201,   202,   205,   206,   207,
-     210,   211,   214,   215,   218,   219,   220,   223,   224,   227,
-     228,   231,   232,   235,   236,   237,   238,   241,   242,   245,
-     246,   249,   250,   253,   254,   257
+       0,    47,    47,    50,    51,    52,    53,    56,    57,    60,
+      65,    66,    69,    74,    75,    78,    79,    80,    83,    84,
+      87,    92,    93,    96,    97,   100,   101,   102,   107,   108,
+     111,   112,   113,   114,   121,   122,   125,   126,   130,   131,
+     134,   137,   138,   141,   142,   172,   173,   174,   175,   176,
+     177,   178,   179,   180,   181,   182,   185,   188,   191,   194,
+     195,   196,   199,   202,   203,   204,   205,   208,   209,   210,
+     213,   214,   217,   218,   221,   222,   223,   226,   227,   230,
+     231,   234,   235,   238,   239,   240,   241,   244,   245,   248,
+     249,   252,   253,   256,   257,   260
 };
 #endif
 
@@ -1525,478 +1528,478 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 44 "sysy.y"
-    { ;}
-    break;
-
-  case 3:
 #line 47 "sysy.y"
     { ;}
     break;
 
-  case 4:
-#line 48 "sysy.y"
-    { ;}
-    break;
-
-  case 5:
-#line 49 "sysy.y"
-    { ;}
-    break;
-
-  case 6:
+  case 3:
 #line 50 "sysy.y"
     { ;}
     break;
 
-  case 7:
+  case 4:
+#line 51 "sysy.y"
+    { ;}
+    break;
+
+  case 5:
+#line 52 "sysy.y"
+    { ;}
+    break;
+
+  case 6:
 #line 53 "sysy.y"
     { ;}
     break;
 
-  case 8:
-#line 54 "sysy.y"
+  case 7:
+#line 56 "sysy.y"
     { ;}
     break;
 
-  case 9:
+  case 8:
 #line 57 "sysy.y"
     { ;}
     break;
 
+  case 9:
+#line 60 "sysy.y"
+    { ;}
+    break;
+
   case 10:
-#line 62 "sysy.y"
+#line 65 "sysy.y"
     { ;}
     break;
 
   case 11:
-#line 63 "sysy.y"
-    { ;}
-    break;
-
-  case 12:
 #line 66 "sysy.y"
     { ;}
     break;
 
+  case 12:
+#line 69 "sysy.y"
+    { ;}
+    break;
+
   case 13:
-#line 71 "sysy.y"
+#line 74 "sysy.y"
     { ;}
     break;
 
   case 14:
-#line 72 "sysy.y"
+#line 75 "sysy.y"
     { ;}
     break;
 
   case 15:
-#line 75 "sysy.y"
+#line 78 "sysy.y"
     {;}
     break;
 
   case 16:
-#line 76 "sysy.y"
+#line 79 "sysy.y"
     {;}
     break;
 
   case 17:
-#line 77 "sysy.y"
-    {;}
-    break;
-
-  case 18:
 #line 80 "sysy.y"
     {;}
     break;
 
-  case 19:
-#line 81 "sysy.y"
+  case 18:
+#line 83 "sysy.y"
     {;}
     break;
 
-  case 20:
+  case 19:
 #line 84 "sysy.y"
     {;}
     break;
 
+  case 20:
+#line 87 "sysy.y"
+    {;}
+    break;
+
   case 21:
-#line 89 "sysy.y"
+#line 92 "sysy.y"
     {;}
     break;
 
   case 22:
-#line 90 "sysy.y"
-    {;}
-    break;
-
-  case 23:
 #line 93 "sysy.y"
     {;}
     break;
 
-  case 24:
-#line 94 "sysy.y"
+  case 23:
+#line 96 "sysy.y"
     {;}
     break;
 
-  case 25:
+  case 24:
 #line 97 "sysy.y"
     {;}
     break;
 
+  case 25:
+#line 100 "sysy.y"
+    {;}
+    break;
+
   case 26:
-#line 98 "sysy.y"
+#line 101 "sysy.y"
     {;}
     break;
 
   case 27:
-#line 99 "sysy.y"
+#line 102 "sysy.y"
     {;}
     break;
 
   case 28:
-#line 104 "sysy.y"
+#line 107 "sysy.y"
     {;}
     break;
 
   case 29:
-#line 105 "sysy.y"
-    {;}
-    break;
-
-  case 30:
 #line 108 "sysy.y"
     {;}
     break;
 
-  case 31:
-#line 109 "sysy.y"
-    {;}
-    break;
-
-  case 32:
-#line 110 "sysy.y"
-    {;}
-    break;
-
-  case 33:
+  case 30:
 #line 111 "sysy.y"
     {;}
     break;
 
+  case 31:
+#line 112 "sysy.y"
+    {;}
+    break;
+
+  case 32:
+#line 113 "sysy.y"
+    {;}
+    break;
+
+  case 33:
+#line 114 "sysy.y"
+    {;}
+    break;
+
   case 34:
-#line 118 "sysy.y"
+#line 121 "sysy.y"
     {;}
     break;
 
   case 35:
-#line 119 "sysy.y"
-    {;}
-    break;
-
-  case 36:
 #line 122 "sysy.y"
     {;}
     break;
 
+  case 36:
+#line 125 "sysy.y"
+    {;}
+    break;
+
   case 37:
-#line 123 "sysy.y"
+#line 126 "sysy.y"
     {;}
     break;
 
   case 38:
-#line 127 "sysy.y"
+#line 130 "sysy.y"
     {;}
     break;
 
   case 39:
-#line 128 "sysy.y"
-    {;}
-    break;
-
-  case 40:
 #line 131 "sysy.y"
     {;}
     break;
 
-  case 41:
+  case 40:
 #line 134 "sysy.y"
     {;}
     break;
 
-  case 42:
-#line 135 "sysy.y"
+  case 41:
+#line 137 "sysy.y"
     {;}
     break;
 
-  case 43:
+  case 42:
 #line 138 "sysy.y"
     {;}
     break;
 
+  case 43:
+#line 141 "sysy.y"
+    {;}
+    break;
+
   case 44:
-#line 139 "sysy.y"
+#line 142 "sysy.y"
     {;}
     break;
 
   case 45:
-#line 169 "sysy.y"
-    {;}
-    break;
-
-  case 46:
-#line 170 "sysy.y"
-    {;}
-    break;
-
-  case 47:
-#line 171 "sysy.y"
-    {;}
-    break;
-
-  case 48:
 #line 172 "sysy.y"
     {;}
     break;
 
-  case 49:
+  case 46:
 #line 173 "sysy.y"
     {;}
     break;
 
-  case 50:
+  case 47:
 #line 174 "sysy.y"
     {;}
     break;
 
-  case 51:
+  case 48:
 #line 175 "sysy.y"
     {;}
     break;
 
-  case 52:
+  case 49:
 #line 176 "sysy.y"
     {;}
     break;
 
-  case 53:
+  case 50:
 #line 177 "sysy.y"
     {;}
     break;
 
-  case 54:
+  case 51:
 #line 178 "sysy.y"
     {;}
     break;
 
-  case 55:
+  case 52:
 #line 179 "sysy.y"
     {;}
     break;
 
-  case 56:
+  case 53:
+#line 180 "sysy.y"
+    {;}
+    break;
+
+  case 54:
+#line 181 "sysy.y"
+    {;}
+    break;
+
+  case 55:
 #line 182 "sysy.y"
     {;}
     break;
 
-  case 57:
+  case 56:
 #line 185 "sysy.y"
     {;}
     break;
 
-  case 58:
+  case 57:
 #line 188 "sysy.y"
     {;}
     break;
 
-  case 59:
+  case 58:
 #line 191 "sysy.y"
     {;}
     break;
 
+  case 59:
+#line 194 "sysy.y"
+    {;}
+    break;
+
   case 60:
-#line 192 "sysy.y"
+#line 195 "sysy.y"
     {;}
     break;
 
   case 61:
-#line 193 "sysy.y"
-    {;}
-    break;
-
-  case 62:
 #line 196 "sysy.y"
     {;}
     break;
 
-  case 63:
+  case 62:
 #line 199 "sysy.y"
     {;}
     break;
 
-  case 64:
-#line 200 "sysy.y"
-    {;}
-    break;
-
-  case 65:
-#line 201 "sysy.y"
-    {;}
-    break;
-
-  case 66:
+  case 63:
 #line 202 "sysy.y"
     {;}
     break;
 
-  case 67:
+  case 64:
+#line 203 "sysy.y"
+    {;}
+    break;
+
+  case 65:
+#line 204 "sysy.y"
+    {;}
+    break;
+
+  case 66:
 #line 205 "sysy.y"
     {;}
     break;
 
+  case 67:
+#line 208 "sysy.y"
+    {;}
+    break;
+
   case 68:
-#line 206 "sysy.y"
+#line 209 "sysy.y"
     {;}
     break;
 
   case 69:
-#line 207 "sysy.y"
-    {;}
-    break;
-
-  case 70:
 #line 210 "sysy.y"
     {;}
     break;
 
-  case 71:
-#line 211 "sysy.y"
+  case 70:
+#line 213 "sysy.y"
     {;}
     break;
 
-  case 72:
+  case 71:
 #line 214 "sysy.y"
     {;}
     break;
 
-  case 73:
-#line 215 "sysy.y"
+  case 72:
+#line 217 "sysy.y"
     {;}
     break;
 
-  case 74:
+  case 73:
 #line 218 "sysy.y"
     {;}
     break;
 
+  case 74:
+#line 221 "sysy.y"
+    {;}
+    break;
+
   case 75:
-#line 219 "sysy.y"
+#line 222 "sysy.y"
     {;}
     break;
 
   case 76:
-#line 220 "sysy.y"
-    {;}
-    break;
-
-  case 77:
 #line 223 "sysy.y"
     {;}
     break;
 
-  case 78:
-#line 224 "sysy.y"
+  case 77:
+#line 226 "sysy.y"
     {;}
     break;
 
-  case 79:
+  case 78:
 #line 227 "sysy.y"
     {;}
     break;
 
-  case 80:
-#line 228 "sysy.y"
+  case 79:
+#line 230 "sysy.y"
     {;}
     break;
 
-  case 81:
+  case 80:
 #line 231 "sysy.y"
     {;}
     break;
 
-  case 82:
-#line 232 "sysy.y"
+  case 81:
+#line 234 "sysy.y"
     {;}
     break;
 
-  case 83:
+  case 82:
 #line 235 "sysy.y"
     {;}
     break;
 
-  case 84:
-#line 236 "sysy.y"
-    {;}
-    break;
-
-  case 85:
-#line 237 "sysy.y"
-    {;}
-    break;
-
-  case 86:
+  case 83:
 #line 238 "sysy.y"
     {;}
     break;
 
-  case 87:
+  case 84:
+#line 239 "sysy.y"
+    {;}
+    break;
+
+  case 85:
+#line 240 "sysy.y"
+    {;}
+    break;
+
+  case 86:
 #line 241 "sysy.y"
     {;}
     break;
 
-  case 88:
-#line 242 "sysy.y"
+  case 87:
+#line 244 "sysy.y"
     {;}
     break;
 
-  case 89:
+  case 88:
 #line 245 "sysy.y"
     {;}
     break;
 
-  case 90:
-#line 246 "sysy.y"
+  case 89:
+#line 248 "sysy.y"
     {;}
     break;
 
-  case 91:
+  case 90:
 #line 249 "sysy.y"
     {;}
     break;
 
-  case 92:
-#line 250 "sysy.y"
+  case 91:
+#line 252 "sysy.y"
     {;}
     break;
 
-  case 93:
+  case 92:
 #line 253 "sysy.y"
     {;}
     break;
 
+  case 93:
+#line 256 "sysy.y"
+    {;}
+    break;
+
   case 94:
-#line 254 "sysy.y"
+#line 257 "sysy.y"
     {;}
     break;
 
   case 95:
-#line 257 "sysy.y"
+#line 260 "sysy.y"
     {;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2000 "sysy.tab.c"
+#line 2003 "sysy.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2210,10 +2213,23 @@ yyreturn:
 }
 
 
-#line 260 "sysy.y"
+#line 263 "sysy.y"
 
 /*  Cpp Code Starts */
-
+void yyerror(const char *s)
+{
+	extern int yylineno;	// defined and maintained in lex
+	extern char *yytext;	// defined and maintained in lex
+	int len=strlen(yytext);
+	int i;
+	char buf[512]={0};
+	for (i=0;i<len;++i)
+	{
+		sprintf(buf,"%s%d ",buf,yytext[i]);
+	}
+	fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
+	yyparse();
+}
 /*  Cpp Code Ends   */
 
 

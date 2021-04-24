@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
-#include <bits/stdc++.h>
+
 #include "define/ast.h"
 #include "define/type.h"
 #include "define/util.h"
@@ -9,13 +9,16 @@
 extern int lineno;
 extern FILE*yyout;
 void yyerror(const char*);
-int yylex(void);
-void gen_eeyore();
+//int yylex(void);
+extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需要使用的C函数，其声明都包括在extern "C"{}块里面，这样C++链接时才能成功链接它们。extern "C"用来在C++环境下设置C链接类型。
+{   //lex.l中也有类似的这段extern "C"，可以把它们合并成一段，放到共同的头文件main.h中
+    //void yyerror(const char *s);
+    extern int yylex(void);//该函数是在lex.yy.c里定义的，yyparse()里要调用该函数，为了能编译和链接，必须用extern加以声明
+}
 %}
 %union{
 	int		int_value;
 	char *	string_value;
-	TreeNode * node_value;
 }
 
  // ************* Tokens ************** //
@@ -259,7 +262,20 @@ ConstExp    :   AddExp {}
 
 %%
 /*  Cpp Code Starts */
-
+void yyerror(const char *s)
+{
+	extern int yylineno;	// defined and maintained in lex
+	extern char *yytext;	// defined and maintained in lex
+	int len=strlen(yytext);
+	int i;
+	char buf[512]={0};
+	for (i=0;i<len;++i)
+	{
+		sprintf(buf,"%s%d ",buf,yytext[i]);
+	}
+	fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
+	yyparse();
+}
 /*  Cpp Code Ends   */
 
 

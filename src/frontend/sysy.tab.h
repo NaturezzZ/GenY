@@ -86,14 +86,13 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 15 "sysy.y"
+#line 19 "sysy.y"
 {
 	int		int_value;
 	char *	string_value;
-	TreeNode * node_value;
 }
 /* Line 1529 of yacc.c.  */
-#line 97 "sysy.tab.h"
+#line 96 "sysy.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
