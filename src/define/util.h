@@ -13,5 +13,4 @@
 //    va_end (arg);
 //    return done;
 //}
-void test();
 #endif //GENY_UTIL_H

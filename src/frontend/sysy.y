@@ -1,24 +1,31 @@
-%{
-#include <stdio.h>
-#include <string.h>
 
-#include "define/ast.h"
-#include "define/type.h"
-#include "define/util.h"
+%code requires
+{
+	#include <stdio.h>
+	#include <string.h>
 
-extern int lineno;
-extern FILE*yyout;
-void yyerror(const char*);
-//int yylex(void);
-extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需要使用的C函数，其声明都包括在extern "C"{}块里面，这样C++链接时才能成功链接它们。extern "C"用来在C++环境下设置C链接类型。
-{   //lex.l中也有类似的这段extern "C"，可以把它们合并成一段，放到共同的头文件main.h中
-    //void yyerror(const char *s);
-    extern int yylex(void);//该函数是在lex.yy.c里定义的，yyparse()里要调用该函数，为了能编译和链接，必须用extern加以声明
+	#include "define/ast.h"
+	#include "define/type.h"
+	#include "define/util.h"
+	extern int lineno;
+	extern FILE*yyout;
+	void yyerror(const char*);
+	//int yylex(void);
+	extern "C"
+	{
+		//void yyerror(const char *s);
+		extern int yylex(void);
+	}
+	extern BaseAST* root;
 }
+
+%{
+
 %}
 %union{
 	int		int_value;
 	char *	string_value;
+	ASTPtr	node;
 }
 
  // ************* Tokens ************** //
@@ -29,6 +36,12 @@ extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需�
 %token BREAK CONTINUE ELSE IF WHILE VOID CONST
 %token RETURN
 %token OP_AND OP_OR OP_EQ OP_NE
+%type <node> Program CompUnit Decl ConstDecl ConstDef_list ConstDef Dimensions_list
+%type <node> ConstInitVal ConstInitVal_list VarDecl InitVal InitVal_list FuncDef FuncFParams
+%type <node> FuncFParam Exp_list Block BlockItem_list BlockItem Stmt Exp Cond LVal PrimaryExp
+%type <node> Number UnaryExp UnaryOp FuncRParams MulExp Mul_Div_Mod AddExp Plus_Minus 
+%type <node> RelExp Rel EqExp EqN LAndExp LOrExp ConstExp 
+
 
  // ************* Left ************** //
 %left OP_AND OP_OR
@@ -44,14 +57,35 @@ extern "C"//为了能够在C++程序里面调用C函数，必须把每一个需�
 %start Program
 
 %%
-Program :   CompUnit { }
-		;
+Program :   
+	CompUnit {
+		ASTRoot = new RootAST();
+		$$ = ASTRoot;
+		ASTRoot->father = ASTRoot;
+		attachNode(ASTRoot, $1);
+	}
+;
 
-CompUnit:   Decl { }
-		|   FuncDef { }
-		|   CompUnit Decl { }
-		|   CompUnit FuncDef { }
-		;
+CompUnit:   
+	Decl {
+		$$ = new CompUnitAST();
+		attachNode($$, $1);
+	}
+	| FuncDef { 
+		$$ = new CompUnitAST();
+		attachNode($$, $1);
+	}
+	| CompUnit Decl {
+		$$ = new CompUnitAST();
+		attachNode($$, $1);
+		attachNode($$, $2);
+	}
+	| CompUnit FuncDef { 
+		$$ = new CompUnitAST();
+		attachNode($$, $1);
+		attachNode($$, $2);
+	}
+	;
 
 Decl    :   ConstDecl { }
 		|   VarDecl { }
@@ -169,9 +203,9 @@ BlockItem   :   Decl {}
 //     ;
 
 Stmt
- 	: LVal '=' Exp ';' {}
- 	| IF '(' Cond ')' Stmt ELSE Stmt {}
- 	| IF '(' Cond ')' Stmt {} %prec LOWER_THAN_ELSE
+	: LVal '=' Exp ';' {}
+	| IF '(' Cond ')' Stmt ELSE Stmt {}
+	| IF '(' Cond ')' Stmt %prec LOWER_THAN_ELSE {}
     | ';' {}
     | Exp ';' {}
     | Block {}
@@ -275,6 +309,10 @@ void yyerror(const char *s)
 	}
 	fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
 	yyparse();
+}
+int main(){
+    yyparse();
+    return 0;
 }
 /*  Cpp Code Ends   */
 

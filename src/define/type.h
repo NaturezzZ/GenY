@@ -9,4 +9,8 @@ class BaseType;
 using TypePtr = std::shared_ptr<BaseType>;
 using TypePtrList = std::vector<TypePtr>;
 
+class BaseType {
+public:
+    BaseType();
+};
 #endif //GENY_TYPE_H

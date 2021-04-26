@@ -3,6 +3,5 @@
 //
 
 #include "define/util.h"
-int main(){
-    return 0;
-}
+#include "frontend/sysy.tab.h"
+

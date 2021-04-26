@@ -1,11 +1,11 @@
 %{
  // Part I-a, C definition
 #include <stdio.h>
-#include "frontend/sysy.tab.h"
 #include "define/ast.h"
 #include "define/type.h"
 #include "define/util.h"
 #include <bits/stdc++.h>
+#include "frontend/sysy.tab.h"
 
 void yyerror(const char*);
 //int yywrap();
