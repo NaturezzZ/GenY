@@ -9,7 +9,7 @@
 class BaseAST;
 
 //using ASTPtr = std::shared_ptr<BaseAST*>;
-using ASTPtr = BaseAST*;
+using ASTPtr = BaseAST* ;
 using ASTPtrList = std::vector<ASTPtr>;
 
 class BaseAST {
@@ -22,7 +22,6 @@ public:
 
     // dump the content of AST (XML format) to output stream
 //    virtual void Dump(std::ostream &os) const = 0;
-
     const TypePtr &set_ast_type(const TypePtr &ast_type) {
         return ast_type_ = ast_type;
     }
@@ -41,19 +40,34 @@ private:
 };
 
 class RootAST : public BaseAST {
-    RootAST(){
-        BaseAST();
-        TypePtr tmpType = ;
+public:
+    int a;
+    RootAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TRoot;
         set_ast_type(tmpType);
     }
 };
 
 class CompUnitAST : public BaseAST {
-
+public:
+    CompUnitAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TCompUnit;
+        tmpType.get()->withCompUnit = false;
+        tmpType.get()->withDecl = false;
+        tmpType.get()->withFuncDef = false;
+        set_ast_type(tmpType);
+    }
 };
 // (const) variable declaration
 class VarDeclAST : public BaseAST {
-
+public:
+    VarDeclAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TVarDecl;
+        set_ast_type(tmpType);
+    }
 };
 // (const) variable definition
 class VarDefAST : public BaseAST {

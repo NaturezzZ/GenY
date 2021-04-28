@@ -9,8 +9,31 @@ class BaseType;
 using TypePtr = std::shared_ptr<BaseType>;
 using TypePtrList = std::vector<TypePtr>;
 
+enum TYPES{
+    TBase = 0xff1,
+    TRoot,
+    TCompUnit,
+    TVarDecl,
+
+};
+
 class BaseType {
 public:
-    BaseType();
+
+    //general
+    int type;
+
+    //for CompUnit
+    bool withCompUnit;
+    bool withDecl;
+    bool withFuncDef;
+
+    //for VarDecl
+    BaseType(){
+        type = TBase;
+        withCompUnit = false;
+        withDecl = false;
+        withFuncDef = false;
+    }
 };
 #endif //GENY_TYPE_H

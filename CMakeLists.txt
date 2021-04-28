@@ -32,27 +32,6 @@ add_compile_definitions(APP_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 # project include directories
 include_directories(src)
 include_directories(3rdparty/xstl)
-#
-#find_package(BISON REQUIRED)
-#find_package(FLEX REQUIRED)
-#ADD_CUSTOM_COMMAND(
-#        SOURCE ${CMAKE_SOURCE_DIR}/src/frontend/sysy.y
-#        COMMAND ${BISON_EXECUTABLE}
-#        ARGS -d
-#        OUTPUT ${CMAKE_SOURCE_DIR}/src/frontend/sysy.tab.c
-#        COMMENT "Generating sysy.tab.c sysy.tab.h"
-#)
-#ADD_CUSTOM_COMMAND(
-#        SOURCE ${CMAKE_SOURCE_DIR}/src/frontend/sysy.l
-#        COMMAND ${FLEX_EXECUTABLE}
-#        OUTPUT ${CMAKE_SOURCE_DIR}/src/frontend/lex.yy.c
-#        COMMENT "Generating lex.yy.c"
-#)
-#MESSAGE(STATUS ${CMAKE_SOURCE_DIR})
-#set(flex_yacc_cmd "make clean; make ly")
-#set(frontend_dir "src/frontend")
-#execute_process(COMMAND ${flex_yacc_cmd} WORKING_DIRECTORY ${frontend_dir})
-##execute_process(COMMAND ${flex_yacc_cmd_new} WORKING_DIRECTORY ${frontend_dir})
 
 # all of C++ source files
 file(GLOB_RECURSE SOURCES_C "src/*.c")
@@ -61,4 +40,4 @@ file(GLOB_RECURSE SOURCES_CXX "src/*.cpp" "src/*.cc")
 set_source_files_properties(${SOURCES_C} PROPERTIES LANGUAGE CXX )
 
 # executable
-add_executable(frontend ${SOURCES_C} ${SOURCES_CXX} ${BISON_MyParser_OUTPUTS} src/frontend/main.cpp src/frontend/main.cpp src/define/ast.cpp)
+add_executable(frontend ${SOURCES_C} ${SOURCES_CXX})

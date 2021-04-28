@@ -70,26 +70,38 @@ CompUnit:
 	Decl {
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
+		$$->withDecl = true;
 	}
 	| FuncDef { 
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
+		$$->withFuncDef = true;
 	}
 	| CompUnit Decl {
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
 		attachNode($$, $2);
+		$$->withCompUnit = true;
+		$$->withDecl = true;
 	}
 	| CompUnit FuncDef { 
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
 		attachNode($$, $2);
+		$$->withCompUnit = true;
+		$$->withFuncDef = true;
 	}
 	;
 
-Decl    :   ConstDecl { }
-		|   VarDecl { }
-		;
+Decl:
+	ConstDecl { 
+		$$ = new DeclAST();
+		attachNode($$, $1);
+	}
+	| VarDecl { 
+
+	}
+	;
 
 ConstDecl   :   CONST INT ConstDef_list ';' { }
 			;
