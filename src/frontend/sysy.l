@@ -71,7 +71,7 @@ whitespace	[ \t]
 
 {whitespace}+ 	{}
 "\n"	{ ++lineno; }
-
+"\r"	{}
 .	{ 	char msg[100];
 		sprintf(msg,"unknown symbol '%c'.",*yytext);
 		yyerror(msg);
@@ -84,7 +84,4 @@ whitespace	[ \t]
 int yywrap()
 {
     return 1;
-}
-void test(){
-	std::cout << "test" << std::endl;
 }

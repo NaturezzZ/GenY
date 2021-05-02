@@ -36,7 +36,7 @@
 %token BREAK CONTINUE ELSE IF WHILE VOID CONST
 %token RETURN
 %token OP_AND OP_OR OP_EQ OP_NE
-%type <node> Program CompUnit Decl ConstDecl ConstDef_list ConstDef Dimensions_list
+%type <node> Program CompUnit Decl ConstDecl ConstDef_list VarDef_list ConstDef Dimensions_list
 %type <node> ConstInitVal ConstInitVal_list VarDecl InitVal InitVal_list FuncDef FuncFParams
 %type <node> FuncFParam Exp_list Block BlockItem_list BlockItem Stmt Exp Cond LVal PrimaryExp
 %type <node> Number UnaryExp UnaryOp FuncRParams MulExp Mul_Div_Mod AddExp Plus_Minus 
@@ -57,7 +57,7 @@
 %start Program
 
 %%
-Program :   
+Program:   
 	CompUnit {
 		ASTRoot = new RootAST();
 		$$ = ASTRoot;
@@ -70,162 +70,335 @@ CompUnit:
 	Decl {
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
-		$$->withDecl = true;
+		$$->ast_type()->withDecl = true;
 	}
 	| FuncDef { 
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
-		$$->withFuncDef = true;
+		$$->ast_type()->withFuncDef = true;
 	}
 	| CompUnit Decl {
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
 		attachNode($$, $2);
-		$$->withCompUnit = true;
-		$$->withDecl = true;
+		$$->ast_type()->withCompUnit = true;
+		$$->ast_type()->withDecl = true;
 	}
 	| CompUnit FuncDef { 
 		$$ = new CompUnitAST();
 		attachNode($$, $1);
 		attachNode($$, $2);
-		$$->withCompUnit = true;
-		$$->withFuncDef = true;
+		$$->ast_type()->withCompUnit = true;
+		$$->ast_type()->withFuncDef = true;
 	}
 	;
 
 Decl:
 	ConstDecl { 
 		$$ = new DeclAST();
+		$$->ast_type()->isConstDecl = true;
 		attachNode($$, $1);
 	}
 	| VarDecl { 
-
+		$$ = new DeclAST();
+		$$->ast_type()->isConstDecl = false;
+		attachNode($$, $1);
 	}
 	;
 
-ConstDecl   :   CONST INT ConstDef_list ';' { }
-			;
+ConstDecl:
+	CONST INT ConstDef_list ';' { 
+		$$ = $3;
+	}
+	;
 
 // const definitions, mutiple is allowed
 // ConstDef { ',' ConstDef }
-ConstDef_list   :   ConstDef { }
-				|   ConstDef_list ',' ConstDef { }
-				;
+ConstDef_list:
+	ConstDef { 
+		$$ = new DefListAST();
+		$$->ast_type()->isConstDefList = true;
+		attachNode($$, $1);
+	}
+	| ConstDef_list ',' ConstDef { 
+		$$ = new DefListAST((*($1)));
+		$$->addMember((*($3)));
 
-ConstDef    :   IDENT Dimensions_list '=' ConstInitVal { }
-			;
+		$$->ast_type()->isConstDefList = true;
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	;
+
+ConstDef:
+	IDENT Dimensions_list '=' ConstInitVal { 
+		$$ = new DefAST($1, ($2)->getValueVectorInt(), ($4)->getValueVectorInt());
+		attachNode($$, $2);
+		attachNode($$, $4);
+	}
+	;
 
 // list of dimensions, [3][2], [1]
 // { '[' ConstExp ']' }
-Dimensions_list :   '[' ConstExp ']' { }
-				|   Dimensions_list '[' ConstExp ']' { }
-				;
+Dimensions_list:
+	'[' ConstExp ']' { 
+		$$ = new DimensionsListAST();
+		$$->addMember(($2)->getValueInt());
+		attachNode($$, $2);
+	}
+	| Dimensions_list '[' ConstExp ']' { 
+		$$ = new DimensionsListAST();
+		$$->addMember(($1)->getValueVectorInt());
+		$$->addMember(($3)->getValueInt());
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	;
 
-ConstInitVal    :   ConstExp {}
-				|   '{' '}' {}
-				|   '{' ConstInitVal_list '}' {}
-				;
+ConstInitVal:
+	ConstExp {
+		$$ = new NestListAST();
+		// int tmp = ($1)->getValueInt();
+		// $$->addMember(tmp);
+		attachNode($$, $1);
+	}
+	| '{' '}' {
+		$$ = new NestListAST();
+		// attachNode($$, $1);
+	}
+	|'{' ConstInitVal_list '}' {
+		$$ = new NestListAST();
+		// $$->addMember(($2)->getValueVectorInt());
+		attachNode($$, $2);
+	}
+	;
 
-ConstInitVal_list   :   ConstInitVal {}
-					|   ConstInitVal_list ',' ConstInitVal {}
-					;
+ConstInitVal_list:
+	ConstInitVal {
+		$$ = new NestListAST();
+		attachNode($$, $1);
+	}
+	| ConstInitVal_list ',' ConstInitVal {
+		$$ = new NestListAST();
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	;
 
-VarDecl :   INT VarDef_list ';' {}
-		;
+VarDecl:
+	INT VarDef_list ';' {
+		$$ = $2;
+	}
+	;
 
 // VarDef { ',' VarDef }
 // eg. 1 1,2 1,2,3
-VarDef_list :   VarDef {}
-			|   VarDef_list ',' VarDef {}
-			;
+VarDef_list:
+	VarDef {
+		$$ = new DefListAST();
+		$$->ast_type()->isConstDefList = false;
+		attachNode($$, $1);
+	}
+	| VarDef_list ',' VarDef {
+		$$ = new DefListAST((*($1)));
+		$$->addMember((*($3)));
+		$$->ast_type()->isConstDefList = false;
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	;
 
-VarDef  :   IDENT Dimensions_list {}
-		|   IDENT Dimensions_list '=' InitVal {}
-		;
+VarDef:
+	IDENT Dimensions_list {
+		$$ = new DefAST($1, ($2)->getValueVectorInt());
+		attachNode($$, $2);
+	}
+	| IDENT Dimensions_list '=' InitVal {
+		$$ = new DefAST($1, ($2)->getValueVectorInt(), ($4)->getValueVectorInt());
+		attachNode($$, $2);
+		attachNode($$, $4);
+	}
+	;
 
-InitVal :   Exp {}
-		|   '{' '}' {}
-		|   '{' InitVal_list '}' {}
-		;
+InitVal:
+	Exp {
+		$$ = new AddExpAST();
+		attachNode($$, $1);
+	}
+	| '{' '}' {
+		$$ = new AddExpAST();
+	}
+	| '{' InitVal_list '}' {
+		$$ = new AddExpAST();
+		attachNode($$, $1);
+	}
+	;
 
 // InitVal { ',' InitVal }
 // 1,2,3,4 1
-InitVal_list    :   InitVal {}
-				|   InitVal_list ',' InitVal {}
-				;
+InitVal_list:
+	InitVal {
+		$$ = new NestListAST();
+		$$->ast_type()->isConstInitList = false;
+		attachNode($$, $1);
+	}
+	| InitVal_list ',' InitVal {
+		$$ = new NestListAST();
+		$$->ast_type()->isConstInitList = false;
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	;
 
-FuncDef :   VOID IDENT '(' ')' Block {}
-		|   VOID IDENT '(' FuncFParams ')' Block {}
-		|   INT IDENT '(' ')' Block {}
-        |   INT IDENT '(' FuncFParams ')' Block {}
-		;
+FuncDef:
+	VOID IDENT '(' ')' Block {
+		$$ = new FuncDefAST($2);
+		$$->ast_type()->isReturnInt = false;
+		$$->ast_type()->withFuncFParam = false;
+		attachNode($$, $5);
+	}
+	| VOID IDENT '(' FuncFParams ')' Block {
+		$$ = new FuncDefAST($2);
+		$$->ast_type()->isReturnInt = false;
+		$$->ast_type()->withFuncFParam = true;
+		attachNode($$, $4);
+		attachNode($$, $6);
+	}
+	| INT IDENT '(' ')' Block {
+		$$ = new FuncDefAST($2);
+		$$->ast_type()->isReturnInt = true;
+		$$->ast_type()->withFuncFParam = false;
+		attachNode($$, $5);
+	}
+    | INT IDENT '(' FuncFParams ')' Block {
+		$$ = new FuncDefAST($2);
+		$$->ast_type()->isReturnInt = true;
+		$$->ast_type()->withFuncFParam = true;
+		attachNode($$, $4);
+		attachNode($$, $6);
+	}
+	;
 
 // FuncType    :   VOID {}
 // 			|   INT {}
 // 			;
 
-FuncFParams :   FuncFParam {}
-			|   FuncFParams ',' FuncFParam {}
-			;
+FuncFParams:
+	FuncFParam {
+		$$ = new FuncParamAST();
+		attachNode($$, $1);
+	}
+	| FuncFParams ',' FuncFParam {
+		$$ = new FuncParamAST();
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	;
 
-FuncFParam  :   INT IDENT {}
-			|   INT IDENT '[' ']' Exp_list {}
-			;
+FuncFParam: 
+	INT IDENT {
+		$$ = new FuncParamAST($2);
+	}
+	| INT IDENT '[' ']' Exp_list {
+		$$ = new FuncParamAST($2);
+		attachNode($$, $5);
+	}
+	;
 
 // { '[' Exp ']' }
-Exp_list    :   '[' Exp ']' Exp_list  {}
-			|   /*empty*/ {}
-			;
+Exp_list:
+	'[' Exp ']' Exp_list  {
+		$$ = new ExpListAST();
+		attachNode($$, $2);
+		attachNode($$, $4);
+	}
+	| /*empty*/ {
+		$$ = new ExpListAST();
+		$$->ast_type()->isEmpty = true;
+	}
+	;
 
-Block   :   '{' BlockItem_list '}' {}
-		;
+Block:
+	'{' BlockItem_list '}' {
+		$$ = new BlockAST();
+		attachNode($$, $2);
+	}
+	;
 
-BlockItem_list  :   BlockItem BlockItem_list {}
-				|   /*empty*/ {}
-				;
+BlockItem_list:
+	BlockItem BlockItem_list {
+		$$ = new BlockItemListAST();
+		attachNode($$, $1);
+		attachNode($$, $2);
+	}
+	| /*empty*/ {
+		$$ = new BlockItemListAST();
+		$$->ast_type()->isEmpty = true;
+	}
+	;
 
-BlockItem   :   Decl {}
-			|   Stmt {}
-			;
+BlockItem:
+	Decl {
+		$$ = new BlockItemAST();
+		attachNode($$, $1);
+	}
+	| Stmt {
+		$$ = new BlockItemAST();
+		attachNode($$, $1);
+	}
+	;
 
-// Stmt
-// 	: Matched_Stmt {}
-// 	| Open_Stmt {}
-// 	;
-//
-// Matched_Stmt
-// 	: IF '(' Cond ')' Matched_Stmt ELSE Matched_Stmt {}
-// 	| NIf_Stmt {}
-// 	;
-//
-// Open_Stmt
-// 	: IF '(' Cond ')' Stmt
-// 	| IF '(' Cond ')' Matched_Stmt ELSE Open_Stmt {}
-//
-// NIf_Stmt
-// 	: LVal '=' Exp ';' {}
-//     | ';' {}
-//     | Exp ';' {}
-//     | Block {}
-//     | WHILE '(' Cond ')' Stmt {}
-//     | BREAK ';' {}
-//     | CONTINUE ';' {}
-//     | RETURN ';' {}
-//     | RETURN Exp ';' {}
-//     ;
-
-Stmt
-	: LVal '=' Exp ';' {}
-	| IF '(' Cond ')' Stmt ELSE Stmt {}
-	| IF '(' Cond ')' Stmt %prec LOWER_THAN_ELSE {}
-    | ';' {}
-    | Exp ';' {}
-    | Block {}
-    | WHILE '(' Cond ')' Stmt {}
-    | BREAK ';' {}
-    | CONTINUE ';' {}
-    | RETURN ';' {}
-    | RETURN Exp ';' {}
+Stmt: 
+	LVal '=' Exp ';' {
+		$$ = new StmtAST();
+		attachNode($$, $1);
+		attachNode($$, $3);
+	}
+	| IF '(' Cond ')' Stmt ELSE Stmt {
+		$$ = new StmtAST();
+		attachNode($$, $3);
+		attachNode($$, $5);
+		attachNode($$, $7);
+	}
+	| IF '(' Cond ')' Stmt %prec LOWER_THAN_ELSE {
+		$$ = new StmtAST();
+		attachNode($$, $3);
+		attachNode($$, $5);
+	}
+    | ';' {
+		$$ = new StmtAST();
+	}
+    | Exp ';' {
+		$$ = new StmtAST();
+		attachNode($$, $1);
+	}
+    | Block {
+		$$ = new StmtAST();
+		attachNode($$, $1);
+	}
+    | WHILE '(' Cond ')' Stmt {
+		$$ = new StmtAST();
+		attachNode($$, $3);
+		attachNode($$, $5);
+	}
+    | BREAK ';' {
+		$$ = new StmtAST();
+		$$->ast_type()->isBreak = true;
+	}
+    | CONTINUE ';' {
+		$$ = new StmtAST();
+		$$->ast_type()->isContinue = true;
+	}
+    | RETURN ';' {
+		$$ = new StmtAST();
+		$$->ast_type()->isReturn = true;
+	}
+    | RETURN Exp ';' {
+		$$ = new StmtAST();
+		$$->ast_type()->isReturn = true;
+		$$->ast_type()->withReturnValue = true;
+		attachNode($$, $2);
+	}
     ;
 
 Exp :   AddExp {}
