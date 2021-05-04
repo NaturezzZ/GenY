@@ -27,6 +27,14 @@ enum TYPES{
     TBlockItemList,
     TBlockItem,
     TStmt,
+    TIfBlock,
+    TWhileBlock,
+    TExp,
+    TLOrExp,
+    TCond,
+    TLVal,
+    TNumber,
+    TOp,
 };
 
 class BaseType {

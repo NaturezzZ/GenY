@@ -212,6 +212,7 @@ public:
 };
 
 class NestListAST : public BaseAST {
+public:
     ASTPtrList value;
     unsigned addMember(ASTPtr p){
         value.push_back(p);
@@ -228,6 +229,7 @@ class NestListAST : public BaseAST {
 };
 
 class AddExpAST : public BaseAST {
+public:
     AddExpAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TAddExp;
@@ -237,10 +239,12 @@ class AddExpAST : public BaseAST {
 
 // function declaration
 class FuncDeclAST : public BaseAST {
+public:
 
 };
 // function definition
 class FuncDefAST : public BaseAST {
+public:
     std::string id;
     FuncDefAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
@@ -259,6 +263,7 @@ class FuncDefAST : public BaseAST {
 
 // function parameter
 class FuncParamAST : public BaseAST {
+public:
     std::string id;
     FuncParamAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
@@ -274,6 +279,7 @@ class FuncParamAST : public BaseAST {
 };
 
 class ExpListAST : public BaseAST {
+public:
     ExpListAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExpList;
@@ -282,6 +288,7 @@ class ExpListAST : public BaseAST {
 };
 
 class BlockAST : public BaseAST {
+public:
     BlockAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TBlock;
@@ -290,6 +297,7 @@ class BlockAST : public BaseAST {
 };
 
 class BlockItemListAST : public BaseAST{
+public:
     BlockItemListAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TBlockItemList;
@@ -298,6 +306,7 @@ class BlockItemListAST : public BaseAST{
 };
 
 class BlockItemAST : public BaseAST{
+public:
     BlockItemAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TBlockItem;
@@ -306,12 +315,116 @@ class BlockItemAST : public BaseAST{
 };
 
 class StmtAST : public BaseAST{
+public:
     StmtAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TStmt;
         set_ast_type(tmpType);
     }
 };
+
+class IfBlockAST : public BaseAST{
+public:
+    IfBlockAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TIfBlock;
+        set_ast_type(tmpType);
+    }
+};
+
+class WhileBlock : public BaseAST{
+public:
+    WhileBlock():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TWhileBlock;
+        set_ast_type(tmpType);
+    }
+};
+
+class ExpAST : public BaseAST {
+public:
+    std::string id;
+    ExpAST():BaseAST() {
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TExp;
+        set_ast_type(tmpType);
+    }
+    explicit ExpAST(std::string & id_):BaseAST() {
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TExp;
+        set_ast_type(tmpType);
+        id = std::string(id_);
+    }
+};
+
+class LOrExp : public BaseAST {
+public:
+    LOrExp():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TLOrExp;
+        set_ast_type(tmpType);
+    }
+};
+
+class CondAST : public BaseAST {
+public:
+    CondAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TCond;
+        set_ast_type(tmpType);
+    }
+};
+
+class LValAST : public BaseAST {
+public:
+    std::string id;
+    LValAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TLVal;
+        set_ast_type(tmpType);
+    }
+    explicit LValAST(std::string & id_):BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TLVal;
+        set_ast_type(tmpType);
+        id = std::string(id_);
+    }
+};
+
+class NumberAST : public BaseAST{
+public:
+    int value;
+    explicit NumberAST(int value_):BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TNumber;
+        set_ast_type(tmpType);
+        value = value_;
+    }
+    NumberAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TNumber;
+        set_ast_type(tmpType);
+        value = 0;
+    }
+};
+
+class OpAST : public BaseAST{
+public:
+    int op;
+    explicit OpAST(int op_):BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TOp;
+        set_ast_type(tmpType);
+        op = op_;
+    }
+    OpAST():BaseAST(){
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TOp;
+        set_ast_type(tmpType);
+        op = -1;
+    }
+};
+
 // ASTPtr ASTRoot;
 extern ASTPtr ASTRoot;
 void attachNode(ASTPtr father, ASTPtr child);

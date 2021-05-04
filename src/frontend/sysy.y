@@ -40,6 +40,7 @@
 %type <node> ConstInitVal ConstInitVal_list VarDecl InitVal InitVal_list FuncDef FuncFParams
 %type <node> FuncFParam Exp_list Block BlockItem_list BlockItem Stmt Exp Cond LVal PrimaryExp
 %type <node> Number UnaryExp UnaryOp FuncRParams MulExp Mul_Div_Mod AddExp Plus_Minus 
+%type <node> IfBlock WhileBlock
 %type <node> RelExp Rel EqExp EqN LAndExp LOrExp ConstExp 
 
 
@@ -349,39 +350,32 @@ BlockItem:
 	;
 
 Stmt: 
+
+	IfBlock {
+		$$ = new StmtAST();
+		attachNode($$, $1);
+	}
+	| Block {
+		$$ = new StmtAST();
+		attachNode($$, $1);
+	}
+	| WhileBlock {
+		$$ = new StmtAST();
+		attachNode($$, $1);
+	}
 	LVal '=' Exp ';' {
 		$$ = new StmtAST();
 		attachNode($$, $1);
 		attachNode($$, $3);
 	}
-	| IF '(' Cond ')' Stmt ELSE Stmt {
-		$$ = new StmtAST();
-		attachNode($$, $3);
-		attachNode($$, $5);
-		attachNode($$, $7);
-	}
-	| IF '(' Cond ')' Stmt %prec LOWER_THAN_ELSE {
-		$$ = new StmtAST();
-		attachNode($$, $3);
-		attachNode($$, $5);
-	}
-    | ';' {
+	| ';' {
 		$$ = new StmtAST();
 	}
     | Exp ';' {
 		$$ = new StmtAST();
 		attachNode($$, $1);
 	}
-    | Block {
-		$$ = new StmtAST();
-		attachNode($$, $1);
-	}
-    | WHILE '(' Cond ')' Stmt {
-		$$ = new StmtAST();
-		attachNode($$, $3);
-		attachNode($$, $5);
-	}
-    | BREAK ';' {
+	| BREAK ';' {
 		$$ = new StmtAST();
 		$$->ast_type()->isBreak = true;
 	}
@@ -399,35 +393,102 @@ Stmt:
 		$$->ast_type()->withReturnValue = true;
 		attachNode($$, $2);
 	}
-    ;
-
-Exp :   AddExp {}
 	;
 
-Cond    :   LOrExp {}
-		;
+IfBlock:
+	IF '(' Cond ')' Stmt ELSE Stmt {
+		$$ = new IfBlockAST();
+		attachNode($$, $3);
+		attachNode($$, $5);
+		attachNode($$, $7);
+	}
+	| IF '(' Cond ')' Stmt %prec LOWER_THAN_ELSE {
+		$$ = new IfBlockAST();
+		attachNode($$, $3);
+		attachNode($$, $5);
+	}
+	;
 
-LVal    :   IDENT Exp_list {}
-		;
+WhileBlock:
+	WHILE '(' Cond ')' Stmt {
+		$$ = new WhileBlockAST();
+		attachNode($$, $3);
+		attachNode($$, $5);
+	}
+	;
 
-PrimaryExp  :   '(' Exp ')' {}
-			|   LVal {}
-			|   Number {}
-			;
+Exp:
+	AddExp {
+		$$ = new ExpAST();
+		attachNode($$, $1);
+	}
+	;
 
-Number  :   INT_CONSTANT {}
-		;
+Cond:
+	LOrExp {
+		$$ = new CondAST();
+		attachNode($$, $1);
+	}
+	;
 
-UnaryExp    :   PrimaryExp {}
-			|   IDENT '(' ')' {}
-			|   IDENT '(' FuncRParams ')' {}
-			|   UnaryOp UnaryExp {}
-			;
+LVal:
+	IDENT Exp_list {
+		$$ = new LValAST($1);
+		attachNode($$, $2);
+	}
+	;
 
-UnaryOp :   '+' {}
-		|   '-' {}
-		|   '!' {}
-		;
+PrimaryExp:
+	'(' Exp ')' {
+		$$ = new ExpAST();
+		attachNode($$, $2);
+	}
+	| LVal {
+		$$ = new ExpAST();
+		attachNode($$, $1);
+	}
+	| Number {
+		$$ = new ExpAST();
+		attachNode($$, $1);
+	}
+	;
+
+Number:
+	INT_CONSTANT {
+		$$ = new NumberAST($1);
+	}
+	;
+
+UnaryExp:
+	PrimaryExp {
+		$$ = new ExpAST();
+		attachNode($$, $1);
+	}
+	| IDENT '(' ')' {
+		$$ = new ExpAST($1);
+	}
+	| IDENT '(' FuncRParams ')' {
+		$$ = new ExpAST($1);
+		attachNode($$, $3);
+	}
+	| UnaryOp UnaryExp {
+		$$ = new ExpAST();
+		attachNode($$, $1);
+		attachNode($$, $2);
+	}
+	;
+
+UnaryOp:
+	'+' {
+		$$ = new OpAST($1);
+	}
+	| '-' {
+		$$ = new OpAST($1);
+	}
+	| '!' {
+		$$ = new OpAST($1);
+	}
+	;
 
 FuncRParams :   Exp {}
 			|   FuncRParams ',' Exp {}
