@@ -9,6 +9,15 @@ class BaseType;
 using TypePtr = std::shared_ptr<BaseType>;
 using TypePtrList = std::vector<TypePtr>;
 
+enum BOPS{
+    BOP_AND = 0xff1,
+    BOP_OR,
+    BOP_EQ,
+    BOP_NE,
+    BOP_GE,
+    BOP_LE,
+};
+
 enum TYPES{
     TBase = 0xff1,
     TRoot,

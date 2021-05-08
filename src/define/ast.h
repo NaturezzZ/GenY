@@ -54,6 +54,14 @@ public:
         tmpType.get()->type = TRoot;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class CompUnitAST : public BaseAST {
@@ -66,6 +74,14 @@ public:
         tmpType.get()->withFuncDef = false;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 // (const) variable declaration
@@ -76,17 +92,25 @@ public:
         tmpType.get()->type = TDecl;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class DefListAST : public BaseAST{
 public:
     std::vector<DefAST> members;
-    uint32_t addMember(DefAST & def){
-        members.push_back(def);
+    uint32_t addMember(DefAST * def){
+        members.push_back((*def));
         return members.size();
     }
-    DefListAST(const DefListAST& obj):BaseAST(obj){
-        members = std::vector<DefAST>(obj.members);
+    explicit DefListAST(const DefListAST* obj):BaseAST(*obj){
+        members = std::vector<DefAST>(obj->members);
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDefList;
         set_ast_type(tmpType);
@@ -95,6 +119,14 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDefList;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -137,6 +169,14 @@ public:
         tmpType.get()->type = TDef;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 // initializer list (for array initialization)
@@ -167,6 +207,10 @@ public:
     std::vector<int> & getValueVectorInt() override{
         return value;
     }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class DimensionsListAST : public BaseAST {
@@ -195,6 +239,10 @@ public:
     std::vector<int> & getValueVectorInt() override{
         return value;
     }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class ConstExpAST : public BaseAST {
@@ -208,6 +256,10 @@ public:
     }
     int & getValueInt() override{
         return value;
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
     }
 };
 
@@ -226,6 +278,14 @@ public:
         tmpType.get()->type = TNestList;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class AddExpAST : public BaseAST {
@@ -234,6 +294,14 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TAddExp;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -258,7 +326,14 @@ public:
         tmpType.get()->type = TFuncDef;
         set_ast_type(tmpType);
     }
-
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 // function parameter
@@ -270,11 +345,19 @@ public:
         tmpType.get()->type = TFuncParam;
         set_ast_type(tmpType);
     }
-    explicit FuncParamAST(std::string & id_):BaseAST(){
-        id = std::string(std::move(id_));
+    explicit FuncParamAST(const char * id_):BaseAST(){
+        id = std::string(id_);
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TFuncParam;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -285,6 +368,14 @@ public:
         tmpType.get()->type = TExpList;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class BlockAST : public BaseAST {
@@ -293,6 +384,14 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TBlock;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -303,6 +402,14 @@ public:
         tmpType.get()->type = TBlockItemList;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class BlockItemAST : public BaseAST{
@@ -311,6 +418,14 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TBlockItem;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -321,6 +436,14 @@ public:
         tmpType.get()->type = TStmt;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class IfBlockAST : public BaseAST{
@@ -330,30 +453,56 @@ public:
         tmpType.get()->type = TIfBlock;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
-class WhileBlock : public BaseAST{
+class WhileBlockAST : public BaseAST{
 public:
-    WhileBlock():BaseAST(){
+    WhileBlockAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TWhileBlock;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
 class ExpAST : public BaseAST {
 public:
     std::string id;
+    int midvalue;
     ExpAST():BaseAST() {
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExp;
         set_ast_type(tmpType);
+        midvalue = 0;
     }
-    explicit ExpAST(std::string & id_):BaseAST() {
+    explicit ExpAST(const char* id_):BaseAST() {
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExp;
         set_ast_type(tmpType);
         id = std::string(id_);
+        midvalue = 0;
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        return midvalue;
     }
 };
 
@@ -364,6 +513,14 @@ public:
         tmpType.get()->type = TLOrExp;
         set_ast_type(tmpType);
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
+    }
 };
 
 class CondAST : public BaseAST {
@@ -372,6 +529,14 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TCond;
         set_ast_type(tmpType);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -383,11 +548,19 @@ public:
         tmpType.get()->type = TLVal;
         set_ast_type(tmpType);
     }
-    explicit LValAST(std::string & id_):BaseAST(){
+    explicit LValAST(const char* id_):BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TLVal;
         set_ast_type(tmpType);
         id = std::string(id_);
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        static int a = 0;
+        return a;
     }
 };
 
@@ -406,6 +579,13 @@ public:
         set_ast_type(tmpType);
         value = 0;
     }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        return value;
+    }
 };
 
 class OpAST : public BaseAST{
@@ -422,6 +602,13 @@ public:
         tmpType.get()->type = TOp;
         set_ast_type(tmpType);
         op = -1;
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        return op;
     }
 };
 

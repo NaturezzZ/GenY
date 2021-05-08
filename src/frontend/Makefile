@@ -7,7 +7,7 @@ ly : sysy.l sysy.y
 front : sysy.l sysy.y main.cpp
 	flex sysy.l
 	bison -d sysy.y
-	g++ -o frontend --std=c++17 ../*/*.c ../*/*.cpp main.cpp -I ..
+	g++ -o frontend --std=c++17 ../*/*.c ../*/*.cpp main.cpp -I .. -w
 
 clean :
 	rm lex.yy.c sysy.tab.c sysy.tab.h frontend

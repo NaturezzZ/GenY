@@ -73,9 +73,9 @@ whitespace	[ \t]
 "\n"	{ ++lineno; }
 "\r"	{}
 .	{ 	char msg[100];
-		sprintf(msg,"unknown symbol '%c'.",*yytext);
-		yyerror(msg);
-	}
+        sprintf(msg,"unknown symbol '%c'.",*yytext);
+        yyerror(msg);
+    }
 %%
 
 
