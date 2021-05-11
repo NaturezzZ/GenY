@@ -61,6 +61,7 @@
 %%
 Program:   
     CompUnit {
+        std::cout << "present" << std::endl;
         ASTRoot = new RootAST();
         $$ = ASTRoot;
         ASTRoot->father = ASTRoot;
@@ -647,12 +648,12 @@ void yyerror(const char *s)
         sprintf(buf,"%s%d ",buf,yytext[i]);
     }
     fprintf(stderr, "ERROR: %s at symbol '%s' on line %d\n", s, buf, yylineno);
-    yyparse();
+    //yyparse();
 }
-int main(){
-    yyparse();
-    return 0;
-}
+ //int main(){
+//     yyparse();
+//     return 0;
+// }
 /*  Cpp Code Ends   */
 
 

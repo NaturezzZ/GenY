@@ -9,10 +9,11 @@
 
 void yyerror(const char*);
 //int yywrap();
+
 int lineno = 1;
 extern "C"
 {
-    //int yywrap(void);
+    int yywrap(void);
     int yylex(void);
 }
 %}
@@ -27,12 +28,11 @@ whitespace	[ \t]
 
 %%
  // Part II, regular expressions
-"//".*		{ } //single line comment
 
 "break"		{ return BREAK; } // wait to realize
 "continue"	{ return CONTINUE; } // wait to realize
 "else"		{ return ELSE; }
-"int" 		{ return INT; }
+"int" 		{ printf("int\n"); return INT; }
 "if"		{ return IF; }
 "main"		{ return MAIN; }
 "return"	{ return RETURN; }
@@ -41,7 +41,7 @@ whitespace	[ \t]
 "const"     { return CONST;}
 
 {number}+		{ sscanf(yytext,"%d",&yylval.int_value); return INT_CONSTANT; } //???judge yytext is a legal digit
-{identifier} 	{ yylval.string_value = strdup(yytext); return IDENT; }//???check type  ???free
+{identifier} 	{ yylval.string_value = yytext; return IDENT; }//???check type  ???free
 
 "&&"	{ return OP_AND; }
 "||"	{ return OP_OR; }
@@ -69,13 +69,14 @@ whitespace	[ \t]
 ";"	{ return ';'; }
 "," { return ','; }
 
-{whitespace}+ 	{}
+{whitespace} 	{}
 "\n"	{ ++lineno; }
 "\r"	{}
 .	{ 	char msg[100];
-        sprintf(msg,"unknown symbol '%c'.",*yytext);
+        sprintf(msg,"unknown symbol '%c'.",*yytext);        
         yyerror(msg);
     }
+
 %%
 
 

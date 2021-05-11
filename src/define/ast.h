@@ -34,8 +34,8 @@ public:
     ASTPtrList siblings;
     BaseAST(const BaseAST& obj){
         father = obj.father;
-        children = std::vector<ASTPtr>(children);
-        siblings = std::vector<ASTPtr>(siblings);
+        children = std::vector<ASTPtr>(obj.children);
+        siblings = std::vector<ASTPtr>(obj.siblings);
         ast_type_ = obj.ast_type_;
     }
     BaseAST(){
@@ -104,13 +104,13 @@ public:
 
 class DefListAST : public BaseAST{
 public:
-    std::vector<DefAST> members;
+    std::vector<DefAST*> members;
     uint32_t addMember(DefAST * def){
-        members.push_back((*def));
+        members.push_back(def);
         return members.size();
     }
     explicit DefListAST(const DefListAST* obj):BaseAST(*obj){
-        members = std::vector<DefAST>(obj->members);
+        members = std::vector<DefAST*>(obj->members);
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDefList;
         set_ast_type(tmpType);
@@ -266,10 +266,7 @@ public:
 class NestListAST : public BaseAST {
 public:
     ASTPtrList value;
-    unsigned addMember(ASTPtr p){
-        value.push_back(p);
-        return value.size();
-    }
+    unsigned addMember(ASTPtr p);
     NestListAST(const NestListAST & obj):BaseAST(obj){
         value = ASTPtrList(obj.value);
     }
@@ -612,7 +609,35 @@ public:
     }
 };
 
+void dispatchRoot(ASTPtr treeRoot);
+void dispatchCompUnit(ASTPtr treeRoot);
+void dispatchDecl(ASTPtr treeRoot);
+void dispatchDefList(ASTPtr treeRoot);
+void dispatchDef(ASTPtr treeRoot);
+void dispatchInitList(ASTPtr treeRoot);
+void dispatchConstExp(ASTPtr treeRoot);
+void dispatchNestList(ASTPtr treeRoot);
+void dispatchAddExp(ASTPtr treeRoot);
+void dispatchFuncDef(ASTPtr treeRoot);
+void dispatchFuncParam(ASTPtr treeRoot);
+void dispatchExpList(ASTPtr treeRoot);
+void dispatchBlock(ASTPtr treeRoot);
+void dispatchBlockItemList(ASTPtr treeRoot);
+void dispatchBlockItem(ASTPtr treeRoot);
+void dispatchStmt(ASTPtr treeRoot);
+void dispatchIfBlock(ASTPtr treeRoot);
+void dispatchWhileBlock(ASTPtr treeRoot);
+void dispatchExp(ASTPtr treeRoot);
+void dispatchLOrExp(ASTPtr treeRoot);
+void dispatchCond(ASTPtr treeRoot);
+void dispatchLVal(ASTPtr treeRoot);
+void dispatchNumber(ASTPtr treeRoot);
+void dispatchOp(ASTPtr treeRoot);
+
 // ASTPtr ASTRoot;
 extern ASTPtr ASTRoot;
 void attachNode(ASTPtr father, ASTPtr child);
+void scanTree(ASTPtr treeRoot);
+void asterr(const char* s);
+
 #endif //GENY_AST_H
