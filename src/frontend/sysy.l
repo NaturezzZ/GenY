@@ -8,7 +8,6 @@
 #include "frontend/sysy.tab.h"
 
 void yyerror(const char*);
-//int yywrap();
 
 int lineno = 1;
 extern "C"
@@ -19,16 +18,22 @@ extern "C"
 %}
 
  // Part I-b, regular definition
-number	[0-9]
+digit	[0-9]
+oct_digit [0-7]
+hex_digit [0-9A-Fa-f]
+integer [1-9]{digit}*
+oct_integer 0{oct_digit}*
+hex_integer 0[xX]{hex_digit}*
+number ({integer}|{oct_integer}|{hex_integer})
 letter 	[a-zA-Z]
 identifier	[a-zA-Z_]([a-zA-Z_0-9])*
 whitespace	[ \t]
-
-
+enter [\n]|[\r\n]
+comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 
 %%
  // Part II, regular expressions
-
+{enter}     { lineno++; }
 "break"		{ return BREAK; } // wait to realize
 "continue"	{ return CONTINUE; } // wait to realize
 "else"		{ return ELSE; }
@@ -39,17 +44,26 @@ whitespace	[ \t]
 "while"		{ return WHILE; }
 "void"      { return VOID; }
 "const"     { return CONST;}
-
-{number}+		{ sscanf(yytext,"%d",&yylval.int_value); return INT_CONSTANT; } //???judge yytext is a legal digit
-{identifier} 	{ yylval.string_value = yytext; return IDENT; }//???check type  ???free
-
+{number}+		{
+					yylval.int_value = 0;
+					if(yytext[0]!='0') {
+						yylval.int_value = atoi(yytext);
+					}
+					else if (yytext[1]=='x' || yytext[1]=='X'){
+						yylval.int_value = strtol(yytext, NULL, 16);
+					}
+					else {
+						yylval.int_value = strtol(yytext, NULL, 8);
+					}
+					return INT_CONSTANT;
+				}
+{identifier} 	{ yylval.string_value = yytext; return IDENT; }
 "&&"	{ return OP_AND; }
 "||"	{ return OP_OR; }
 "=="	{ return OP_EQ; }
 "!="	{ return OP_NE; }
 "<="    { return OP_LE; }
 ">="    { return OP_GE; }
-
 "!"	{ return '!'; }
 "-"	{ return '-'; }
 "+"	{ return '+'; }
@@ -61,22 +75,18 @@ whitespace	[ \t]
 "="	{ return '='; }
 "["	{ return '['; }
 "]"	{ return ']'; }
-
 "{"	{ return '{'; }
 "}"	{ return '}'; }
 "("	{ return '('; }
 ")"	{ return ')'; }
 ";"	{ return ';'; }
 "," { return ','; }
-
 {whitespace} 	{}
-"\n"	{ ++lineno; }
-"\r"	{}
+{comment}       {}
 .	{ 	char msg[100];
         sprintf(msg,"unknown symbol '%c'.",*yytext);        
         yyerror(msg);
     }
-
 %%
 
 
