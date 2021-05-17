@@ -62,6 +62,7 @@ public:
 
     //for DefList
     bool isConstDefList;
+    bool isDest;
 
     //for InitList
     bool isConstInitList;
@@ -87,7 +88,7 @@ public:
         withFuncDef = false;
         isConstDecl = false;
         isConstDefList = false;
-        isConstDefList = false;
+        isDest = false;
         isConstInitList = false;
         isReturnInt = false;
         withFuncFParam = false;
@@ -97,6 +98,7 @@ public:
         isContinue = false;
         isReturn = false;
         withReturnValue = false;
+
     }
 };
 #endif //GENY_TYPE_H

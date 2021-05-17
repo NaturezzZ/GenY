@@ -6,6 +6,7 @@
 #include "frontend/sysy.tab.h"
 #include "define/ast.h"
 #include "define/util.h"
+#include "define/symtab.h"
 extern FILE *yyin;
 //extern FILE *yyout;
 int main(int argc, char** argv){

@@ -44,19 +44,19 @@ comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 "while"		{ return WHILE; }
 "void"      { return VOID; }
 "const"     { return CONST;}
-{number}+		{
-					yylval.int_value = 0;
-					if(yytext[0]!='0') {
-						yylval.int_value = atoi(yytext);
-					}
-					else if (yytext[1]=='x' || yytext[1]=='X'){
-						yylval.int_value = strtol(yytext, NULL, 16);
-					}
-					else {
-						yylval.int_value = strtol(yytext, NULL, 8);
-					}
-					return INT_CONSTANT;
+{number}+	{
+				yylval.int_value = 0;
+				if(yytext[0]!='0') {
+					yylval.int_value = atoi(yytext);
 				}
+				else if (yytext[1]=='x' || yytext[1]=='X'){
+					yylval.int_value = strtol(yytext, NULL, 16);
+				}
+				else {
+					yylval.int_value = strtol(yytext, NULL, 8);
+				}
+				return INT_CONSTANT;
+			}
 {identifier} 	{ yylval.string_value = yytext; return IDENT; }
 "&&"	{ return OP_AND; }
 "||"	{ return OP_OR; }
@@ -64,23 +64,23 @@ comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 "!="	{ return OP_NE; }
 "<="    { return OP_LE; }
 ">="    { return OP_GE; }
-"!"	{ return '!'; }
-"-"	{ return '-'; }
-"+"	{ return '+'; }
-"*"	{ return '*'; }
-"/"	{ return '/'; }
-"%"	{ return '%'; }
-"<"	{ return '<'; }
-">"	{ return '>'; }
-"="	{ return '='; }
-"["	{ return '['; }
-"]"	{ return ']'; }
-"{"	{ return '{'; }
-"}"	{ return '}'; }
-"("	{ return '('; }
-")"	{ return ')'; }
-";"	{ return ';'; }
-"," { return ','; }
+"!"	    { return '!'; }
+"-"	    { return '-'; }
+"+"	    { return '+'; }
+"*"	    { return '*'; }
+"/"	    { return '/'; }
+"%"	    { return '%'; }
+"<"	    { return '<'; }
+">"	    { return '>'; }
+"="	    { return '='; }
+"["	    { return '['; }
+"]"	    { return ']'; }
+"{"	    { return '{'; }
+"}"	    { return '}'; }
+"("	    { return '('; }
+")"	    { return ')'; }
+";"	    { return ';'; }
+","     { return ','; }
 {whitespace} 	{}
 {comment}       {}
 .	{ 	char msg[100];
@@ -88,8 +88,6 @@ comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
         yyerror(msg);
     }
 %%
-
-
 
  // Part III, auxiliary functions
 int yywrap()

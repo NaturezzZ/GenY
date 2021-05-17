@@ -6,7 +6,7 @@
 #define GENY_AST_H
 #include "define/type.h"
 #include <bits/stdc++.h>
-
+#include "define/symtab.h"
 #include <utility>
 
 class BaseAST;
@@ -87,6 +87,7 @@ public:
 // (const) variable declaration
 class DeclAST : public BaseAST {
 public:
+    std::map<std::string, int> decls; // id, init_val
     DeclAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDecl;
@@ -311,10 +312,12 @@ public:
 class FuncDefAST : public BaseAST {
 public:
     std::string id;
+    int pNum; // number of params
     FuncDefAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TFuncDef;
         set_ast_type(tmpType);
+        pNum = 0;
     }
 
     explicit FuncDefAST(const std::string & id_):BaseAST(){
@@ -322,6 +325,7 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TFuncDef;
         set_ast_type(tmpType);
+        pNum = 0;
     }
     std::vector<int> & getValueVectorInt() override{
         static std::vector<int> a;
@@ -612,8 +616,8 @@ public:
 void dispatchRoot(ASTPtr treeRoot);
 void dispatchCompUnit(ASTPtr treeRoot);
 void dispatchDecl(ASTPtr treeRoot);
-void dispatchDefList(ASTPtr treeRoot);
-void dispatchDef(ASTPtr treeRoot);
+void dispatchDefList(ASTPtr treeRoot, std::map<std::string, int> & target);
+void dispatchDef(ASTPtr treeRoot, std::map<std::string, int> & target);
 void dispatchInitList(ASTPtr treeRoot);
 void dispatchConstExp(ASTPtr treeRoot);
 void dispatchNestList(ASTPtr treeRoot);
@@ -640,4 +644,8 @@ void attachNode(ASTPtr father, ASTPtr child);
 void scanTree(ASTPtr treeRoot);
 void asterr(const char* s);
 
+class varInfo{
+    std::string id;
+
+};
 #endif //GENY_AST_H

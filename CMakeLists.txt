@@ -16,7 +16,7 @@ if(MSVC)
   add_compile_options(/W3 /WX)
 elseif(APPLE)
   MESSAGE(STATUS "This is apple")
-  add_compile_options(-Wall -Og -ll -v -g)
+  add_compile_options(-Wall -Og -ll -v -g -w)
 else()
   MESSAGE(STATUS "This is Linux")
   add_compile_options(-Wall -O2 -lfl)
@@ -35,7 +35,7 @@ include_directories(3rdparty/xstl)
 
 # all of C++ source files
 file(GLOB_RECURSE SOURCES_C "src/*.c")
-file(GLOB_RECURSE SOURCES_CXX "src/*.cpp" "src/*.cc")
+file(GLOB_RECURSE SOURCES_CXX "src/*.cpp" "src/*.cc" "define/*.cpp" "define/*.cc")
 
 set_source_files_properties(${SOURCES_C} PROPERTIES LANGUAGE CXX )
 

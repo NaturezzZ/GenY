@@ -121,12 +121,12 @@ ConstDef_list:
     ConstDef { 
         $$ = new DefListAST();
         $$->ast_type()->isConstDefList = true;
+        $$->ast_type()->isDest = true;
         attachNode($$, $1);
     }
     | ConstDef_list ',' ConstDef { 
         $$ = new DefListAST((DefListAST*)$1);
         ((DefListAST*)$$)->addMember((DefAST *)($3));
-
         $$->ast_type()->isConstDefList = true;
         attachNode($$, $1);
         attachNode($$, $3);
@@ -200,6 +200,7 @@ VarDef_list:
     VarDef {
         $$ = new DefListAST();
         $$->ast_type()->isConstDefList = false;
+        $$->ast_type()->isDest = true;
         attachNode($$, $1);
     }
     | VarDef_list ',' VarDef {
