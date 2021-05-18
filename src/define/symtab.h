@@ -18,7 +18,7 @@ public:
     functabEntry() {
         paramNum = 0;
     }
-    functabEntry(int n) {
+    explicit functabEntry(int n) {
         paramNum = n;
     }
     functabEntry(const functabEntry& obj){
@@ -41,17 +41,46 @@ public:
             return (*it).second;
         }
     }
-    int insert(const string & id, const int & nsNum){
-        auto key = naVarType(id, nsNum);
+    int insert(const std::string & id, const int & nsNum){
+        auto key = std::make_pair(id, nsNum);
         auto it = data.find(key);
         if(it != data.end()){
             return (*it).second;
         }
         else{
-            auto p = std::pair<naVarType, int>(id, nsNum);
-            data[p] = maxNaVarNum;
+            data[key] = maxNaVarNum;
             maxNaVarNum++;
+            return maxNaVarNum-1;
         }
+    }
+};
+
+class initValue{
+public:
+    bool isArray;
+    bool isInit;
+    bool isConst;
+    std::vector<int> value;
+    std::vector<int> dims;
+    initValue(){
+        isArray = false;
+        isInit = false;
+        isConst = false;
+    }
+    initValue(const initValue & obj){
+        isArray = obj.isArray;
+        isInit = obj.isInit;
+        isConst = obj.isConst;
+        dims = std::vector<int>(obj.dims);
+        value = std::vector<int>(obj.value);
+    }
+    initValue & operator = (const initValue& obj){
+        isArray = obj.isArray;
+        isInit = obj.isInit;
+        isConst = obj.isConst;
+        dims = std::vector<int>(obj.dims);
+        value = std::vector<int>(obj.value);
+        return *this;
     }
 };
 
@@ -60,5 +89,6 @@ extern int curNsNum;
 extern int maxNsNum;
 extern std::map<std::string, functabEntry> funcTable;
 extern naVarTable_t naVarTable;
+extern std::map<int, initValue> varTable;
 void symerror(const char* s);
 #endif//GENY_SYMTAB_H

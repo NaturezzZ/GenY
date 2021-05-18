@@ -32,6 +32,6 @@ int main(int argc, char** argv){
     }
     std::cout << "test" << std::endl;
     yyparse();
-    scanTree(ASTRoot);
+    dispatchRoot(ASTRoot);
     return 0;
 }

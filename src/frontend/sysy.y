@@ -134,8 +134,18 @@ ConstDef_list:
     ;
 
 ConstDef:
-    IDENT Dimensions_list '=' ConstInitVal { 
-        $$ = new DefAST($1, ($2)->getValueVectorInt(), ($4)->getValueVectorInt());
+    IDENT '=' ConstInitVal { 
+        $$ = new DefAST($1);
+        $$->isArray = false;
+        $$->withInitVal = true;
+        $$->isConst = true;
+        attachNode($$, $3);
+    }
+    | IDENT Dimensions_list '=' ConstInitVal { 
+        $$ = new DefAST($1);
+        $$->isArray = true;
+        $$->withInitVal = true;
+        $$->isConst = true;
         attachNode($$, $2);
         attachNode($$, $4);
     }
@@ -146,13 +156,13 @@ ConstDef:
 Dimensions_list:
     '[' ConstExp ']' { 
         $$ = new DimensionsListAST();
-        ((DimensionsListAST*)$$)->addMember(($2)->getValueInt());
+        // ((DimensionsListAST*)$$)->addMember(($2)->getValueInt());
         attachNode($$, $2);
     }
     | Dimensions_list '[' ConstExp ']' { 
         $$ = new DimensionsListAST();
-        ((DimensionsListAST*)$$)->addMember(($1)->getValueVectorInt());
-        ((DimensionsListAST*)$$)->addMember(($3)->getValueInt());
+        // ((DimensionsListAST*)$$)->addMember(($1)->getValueVectorInt());
+        // ((DimensionsListAST*)$$)->addMember(($3)->getValueInt());
         attachNode($$, $1);
         attachNode($$, $3);
     }
@@ -171,6 +181,7 @@ ConstInitVal:
     }
     |'{' ConstInitVal_list '}' {
         $$ = new NestListAST();
+        $$->
         // $$->addMember(($2)->getValueVectorInt());
         attachNode($$, $2);
     }
@@ -214,13 +225,32 @@ VarDef_list:
 
 VarDef:
     IDENT Dimensions_list {
-        $$ = new DefAST($1, ($2)->getValueVectorInt());
+        $$ = new DefAST($1);
+        $$->isArray = true;
+        $$->withInitVal = false;
+        $$->isConst = false;
         attachNode($$, $2);
     }
     | IDENT Dimensions_list '=' InitVal {
-        $$ = new DefAST($1, ($2)->getValueVectorInt(), ($4)->getValueVectorInt());
+        $$ = new DefAST($1);
+        $$->isArray = true;
+        $$->withInitVal = true;
+        $$->isConst = false;
         attachNode($$, $2);
         attachNode($$, $4);
+    }
+    | IDENT {
+        $$ = new DefAST($1);
+        $$->isArray = false;
+        $$->withInitVal = false;
+        $$->isConst = false;
+    }
+    | IDENT '=' InitVal {
+        $$ = new DefAST($1);
+        $$->isArray = false;
+        $$->withInitVal = true;
+        $$->isConst = false;
+        attachNode($$, $3);
     }
     ;
 
@@ -443,15 +473,18 @@ LVal:
 
 PrimaryExp:
     '(' Exp ')' {
-        $$ = new ExpAST();
+        $$ = new PrimaryExpAST();
+        $$->type = 0;
         attachNode($$, $2);
     }
     | LVal {
-        $$ = new ExpAST();
+        $$ = new PrimaryExpAST();
+        $$->type = 1;
         attachNode($$, $1);
     }
     | Number {
-        $$ = new ExpAST();
+        $$ = new PrimaryExpAST();
+        $$->type = 2;
         attachNode($$, $1);
     }
     ;
@@ -532,10 +565,11 @@ Mul_Div_Mod:
 
 AddExp:
     MulExp {
-        $$ = new AddExpAST();
+        $$ = new ExpAST();
+        attachNode($$, $1);
     }
     | AddExp Plus_Minus MulExp {
-        $$ = new AddExpAST();
+        $$ = new ExpAST();
         attachNode($$, $1);
         attachNode($$, $2);
         attachNode($$, $3);

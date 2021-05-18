@@ -87,7 +87,7 @@ public:
 // (const) variable declaration
 class DeclAST : public BaseAST {
 public:
-    std::map<std::string, int> decls; // id, init_val
+    std::map<std::string, initValue> decls; // id, init_val
     DeclAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDecl;
@@ -108,7 +108,7 @@ public:
     std::vector<DefAST*> members;
     uint32_t addMember(DefAST * def){
         members.push_back(def);
-        return members.size();
+        return static_cast<uint32_t>(members.size());
     }
     explicit DefListAST(const DefListAST* obj):BaseAST(*obj){
         members = std::vector<DefAST*>(obj->members);
@@ -137,6 +137,9 @@ public:
     std::string id;
     std::vector<int> dimensions;
     std::vector<int> initval;
+    bool isArray;
+    bool withInitVal;
+    bool isConst;
 
     DefAST(const DefAST &obj):BaseAST(obj) {
         id = std::string(obj.id);
@@ -145,31 +148,47 @@ public:
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDef;
         set_ast_type(tmpType);
+        isArray = obj.isArray;
+        withInitVal = obj.withInitVal;
+        isConst = obj.isConst;
     }
 
     DefAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDef;
         set_ast_type(tmpType);
+        isArray = false;
+        withInitVal = false;
+        isConst = false;
     }
-
-    DefAST(const std::string & id_, const std::vector<int> & dimensions_, const std::vector<int> & initval_):BaseAST(){
-        id = std::string(id_);
-        dimensions = std::vector<int>(dimensions_);
-        initval = std::vector<int>(initval_);
+    explicit DefAST(const std::string & id_):BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TDef;
         set_ast_type(tmpType);
+        id = id_;
+        isArray = false;
+        withInitVal = false;
+        isConst = false;
     }
-
-    DefAST(const std::string & id_, const std::vector<int> & dimensions_):BaseAST(){
-        id = std::string(id_);
-        dimensions = std::vector<int>(dimensions_);
-        initval = std::vector<int>(dimensions.size());
-        TypePtr tmpType = std::make_shared<BaseType>();
-        tmpType.get()->type = TDef;
-        set_ast_type(tmpType);
-    }
+    /*
+//    DefAST(const std::string & id_, const std::vector<int> & dimensions_, const std::vector<int> & initval_):BaseAST(){
+//        id = std::string(id_);
+//        dimensions = std::vector<int>(dimensions_);
+//        initval = std::vector<int>(initval_);
+//        TypePtr tmpType = std::make_shared<BaseType>();
+//        tmpType.get()->type = TDef;
+//        set_ast_type(tmpType);
+//    }
+//
+//    DefAST(const std::string & id_, const std::vector<int> & dimensions_):BaseAST(){
+//        id = std::string(id_);
+//        dimensions = std::vector<int>(dimensions_);
+//        initval = std::vector<int>(dimensions.size());
+//        TypePtr tmpType = std::make_shared<BaseType>();
+//        tmpType.get()->type = TDef;
+//        set_ast_type(tmpType);
+//    }
+     */
     std::vector<int> & getValueVectorInt() override{
         static std::vector<int> a;
         return a;
@@ -219,7 +238,7 @@ public:
     std::vector<int> value;
     unsigned addMember(int dim){
         value.push_back(dim);
-        return value.size();
+        return static_cast<unsigned int>(value.size());
     }
     unsigned addMember(const std::vector<int> & obj){
         int s = obj.size();
@@ -267,6 +286,7 @@ public:
 class NestListAST : public BaseAST {
 public:
     ASTPtrList value;
+    std::vector<int> data;
     unsigned addMember(ASTPtr p);
     NestListAST(const NestListAST & obj):BaseAST(obj){
         value = ASTPtrList(obj.value);
@@ -277,8 +297,7 @@ public:
         set_ast_type(tmpType);
     }
     std::vector<int> & getValueVectorInt() override{
-        static std::vector<int> a;
-        return a;
+        return data;
     }
     int & getValueInt() override{
         static int a = 0;
@@ -364,9 +383,11 @@ public:
 
 class ExpListAST : public BaseAST {
 public:
+    int value;
     ExpListAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExpList;
+        value = 0;
         set_ast_type(tmpType);
     }
     std::vector<int> & getValueVectorInt() override{
@@ -484,26 +505,55 @@ public:
 class ExpAST : public BaseAST {
 public:
     std::string id;
-    int midvalue;
+    int value;
     ExpAST():BaseAST() {
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExp;
         set_ast_type(tmpType);
-        midvalue = 0;
+        value = 0;
     }
     explicit ExpAST(const char* id_):BaseAST() {
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExp;
         set_ast_type(tmpType);
         id = std::string(id_);
-        midvalue = 0;
+        value = 0;
     }
     std::vector<int> & getValueVectorInt() override{
         static std::vector<int> a;
         return a;
     }
     int & getValueInt() override{
-        return midvalue;
+        return value;
+    }
+};
+
+class PrimaryExpAST : public BaseAST {
+public:
+    std::string id;
+    int value;
+    int type;
+    PrimaryExpAST():BaseAST() {
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TExp;
+        set_ast_type(tmpType);
+        value = 0;
+        type = 0;
+    }
+    explicit PrimaryExpAST(const char* id_):BaseAST() {
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TExp;
+        set_ast_type(tmpType);
+        id = std::string(id_);
+        value = 0;
+        type = 0;
+    }
+    std::vector<int> & getValueVectorInt() override{
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt() override{
+        return value;
     }
 };
 
@@ -544,6 +594,7 @@ public:
 class LValAST : public BaseAST {
 public:
     std::string id;
+    int value;
     LValAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TLVal;
@@ -616,12 +667,16 @@ public:
 void dispatchRoot(ASTPtr treeRoot);
 void dispatchCompUnit(ASTPtr treeRoot);
 void dispatchDecl(ASTPtr treeRoot);
-void dispatchDefList(ASTPtr treeRoot, std::map<std::string, int> & target);
-void dispatchDef(ASTPtr treeRoot, std::map<std::string, int> & target);
+void dispatchDefList(ASTPtr treeRoot, std::map<std::string, initValue> & target);
+void dispatchDef(ASTPtr treeRoot, std::map<std::string, initValue> & target);
+void dispatchDimensionsList(ASTPtr treeRoot, std::vector<int> & target);
 void dispatchInitList(ASTPtr treeRoot);
-void dispatchConstExp(ASTPtr treeRoot);
+void dispatchConstExp(ASTPtr treeRoot, bool isConst);
 void dispatchNestList(ASTPtr treeRoot);
-void dispatchAddExp(ASTPtr treeRoot);
+void dispatchAddExp(ASTPtr treeRoot, bool isConst);
+void dispatchMulExp(ASTPtr treeRoot, bool isConst);
+void dispatchUnaryExp(ASTPtr treeRoot, bool isConst);
+void dispatchPrimaryExp(ASTPtr treeRoot, bool isConst);
 void dispatchFuncDef(ASTPtr treeRoot);
 void dispatchFuncParam(ASTPtr treeRoot);
 void dispatchExpList(ASTPtr treeRoot);
@@ -634,14 +689,14 @@ void dispatchWhileBlock(ASTPtr treeRoot);
 void dispatchExp(ASTPtr treeRoot);
 void dispatchLOrExp(ASTPtr treeRoot);
 void dispatchCond(ASTPtr treeRoot);
-void dispatchLVal(ASTPtr treeRoot);
+void dispatchLVal(ASTPtr treeRoot, bool isConst);
+void dispatchConstExpList(ASTPtr treeRoot);
 void dispatchNumber(ASTPtr treeRoot);
 void dispatchOp(ASTPtr treeRoot);
 
 // ASTPtr ASTRoot;
 extern ASTPtr ASTRoot;
 void attachNode(ASTPtr father, ASTPtr child);
-void scanTree(ASTPtr treeRoot);
 void asterr(const char* s);
 
 class varInfo{
