@@ -330,7 +330,7 @@ void dispatchPrimaryExp(ASTPtr treeRoot, bool isConst) {
 void dispatchFuncDef(ASTPtr treeRoot) {}
 void dispatchFuncParam(ASTPtr treeRoot) {}
 void dispatchExpList(ASTPtr treeRoot) {
-    
+
 }
 void dispatchBlock(ASTPtr treeRoot) {}
 void dispatchBlockItemList(ASTPtr treeRoot) {}
@@ -348,6 +348,8 @@ void dispatchExp(ASTPtr treeRoot, bool isConst) {
         // TODO: non const
     }
 }
+
+
 void dispatchLOrExp(ASTPtr treeRoot) {}
 void dispatchCond(ASTPtr treeRoot) {}
 void dispatchLVal(ASTPtr treeRoot, bool isConst) {
@@ -355,7 +357,6 @@ void dispatchLVal(ASTPtr treeRoot, bool isConst) {
     auto child = (ExpListAST*) (node->children[0]);
     if(isConst){
         int size = static_cast<int>(node->children.size());
-        // TODO: LVal -> IDENT 这里能不能是一个数组？？
         auto key = std::pair(node->id, curNsNum);
         auto index = naVarTable.data[key];
         auto tmpVal = varTable[index].value;
