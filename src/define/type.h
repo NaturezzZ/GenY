@@ -9,6 +9,17 @@ class BaseType;
 using TypePtr = std::shared_ptr<BaseType>;
 using TypePtrList = std::vector<TypePtr>;
 
+enum VAL_TYPE{
+    val_const_ = 0,
+    val_tvar_,
+    val_array_,
+    val_Tvar_,
+//    val_t_var_,
+//    val_T_var_,
+//    val_t_array_,
+//    val_T_array_,
+};
+
 enum BOPS{
     BOP_AND = 0xff1,
     BOP_OR,

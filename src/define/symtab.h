@@ -6,6 +6,8 @@
 #define GENY_SYMTAB_H
 #include <bits/stdc++.h>
 #include "define/ast.h"
+#include "frontend/sysy.tab.h"
+
 typedef std::pair<std::string, int> naVarType; //name, curNsNum
 class symtabEntry {
 public:
@@ -91,4 +93,11 @@ extern std::map<std::string, functabEntry> funcTable;
 extern naVarTable_t naVarTable;
 extern std::map<int, initValue> varTable;
 void symerror(const char* s);
+typedef std::tuple<int, int, int> retVal_t;
+extern bool p_t;
+extern maxtCnt;
+int tprintf1(const char* s);
+int tprintf2(const char* s);
+void switchAndCopy(retVal_t & obj, int tnum);
+void dectvar(int tnum);
 #endif//GENY_SYMTAB_H

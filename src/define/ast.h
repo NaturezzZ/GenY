@@ -668,36 +668,41 @@ void dispatchRoot(ASTPtr treeRoot);
 void dispatchCompUnit(ASTPtr treeRoot);
 void dispatchDecl(ASTPtr treeRoot);
 void dispatchDefList(ASTPtr treeRoot, std::map<std::string, initValue> & target);
+void dispatchConstDefList(ASTPtr treeRoot);
+void dispatchConstDef(ASTPtr treeRoot);
 void dispatchDef(ASTPtr treeRoot, std::map<std::string, initValue> & target);
-void dispatchDimensionsList(ASTPtr treeRoot, std::vector<int> & target);
-void dispatchInitList(ASTPtr treeRoot);
-void dispatchConstExp(ASTPtr treeRoot, bool isConst);
-void dispatchNestList(ASTPtr treeRoot);
-void dispatchAddExp(ASTPtr treeRoot, bool isConst);
-void dispatchMulExp(ASTPtr treeRoot, bool isConst);
-void dispatchUnaryExp(ASTPtr treeRoot, bool isConst);
-void dispatchPrimaryExp(ASTPtr treeRoot, bool isConst);
+std::vector<retVal_t> dispatchDimensionsList(ASTPtr treeRoot, std::vector<int> & target);
+
+std::string dispatchConstInitVal(ASTPtr treeRoot, std::vector<retVal_t>& target);
+std::string dispatchConstInitList(ASTPtr treeRoot, std::vector<retVal_t>& target);
+std::string dispatchInitVal(ASTPtr treeRoot, std::vector<retVal_t>& target);
+std::string dispatchInitList(ASTPtr treeRoot, std::vector<retVal_t>& target);
+
+retVal_t dispatchConstExp(ASTPtr treeRoot);
+retVal_t dispatchAddExp(ASTPtr treeRoot);
+retVal_t dispatchMulExp(ASTPtr treeRoot);
+retVal_t dispatchUnaryExp(ASTPtr treeRoot);
+retVal_t dispatchPrimaryExp(ASTPtr treeRoot);
 void dispatchFuncDef(ASTPtr treeRoot);
 void dispatchFuncParam(ASTPtr treeRoot);
-void dispatchExpList(ASTPtr treeRoot);
+std::vector<retVal_t> dispatchExpList(ASTPtr treeRoot);
 void dispatchBlock(ASTPtr treeRoot);
 void dispatchBlockItemList(ASTPtr treeRoot);
 void dispatchBlockItem(ASTPtr treeRoot);
 void dispatchStmt(ASTPtr treeRoot);
 void dispatchIfBlock(ASTPtr treeRoot);
 void dispatchWhileBlock(ASTPtr treeRoot);
-void dispatchExp(ASTPtr treeRoot);
+retVal_t dispatchExp(ASTPtr treeRoot);
 void dispatchLOrExp(ASTPtr treeRoot);
 void dispatchCond(ASTPtr treeRoot);
-void dispatchLVal(ASTPtr treeRoot, bool isConst);
+retVal_t dispatchLVal(ASTPtr treeRoot);
 void dispatchConstExpList(ASTPtr treeRoot);
-void dispatchNumber(ASTPtr treeRoot);
-void dispatchOp(ASTPtr treeRoot);
 
 // ASTPtr ASTRoot;
 extern ASTPtr ASTRoot;
 void attachNode(ASTPtr father, ASTPtr child);
 void asterr(const char* s);
+void process_array(std::vector<retVal_t> src, std::vector<retVal_t> dst, std::string pattern);
 
 class varInfo{
     std::string id;

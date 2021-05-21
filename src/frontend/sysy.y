@@ -181,7 +181,6 @@ ConstInitVal:
     }
     |'{' ConstInitVal_list '}' {
         $$ = new NestListAST();
-        $$->
         // $$->addMember(($2)->getValueVectorInt());
         attachNode($$, $2);
     }
@@ -256,14 +255,14 @@ VarDef:
 
 InitVal:
     Exp {
-        $$ = new AddExpAST();
+        $$ = new NestListAST();
         attachNode($$, $1);
     }
     | '{' '}' {
-        $$ = new AddExpAST();
+        $$ = new NestListAST();
     }
     | '{' InitVal_list '}' {
-        $$ = new AddExpAST();
+        $$ = new NestListAST();
         attachNode($$, $2);
     }
     ;
