@@ -702,7 +702,7 @@ void dispatchConstExpList(ASTPtr treeRoot);
 extern ASTPtr ASTRoot;
 void attachNode(ASTPtr father, ASTPtr child);
 void asterr(const char* s);
-void process_array(std::vector<retVal_t> src, std::vector<retVal_t> dst, std::string pattern);
+void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::string& pattern, std::vector<int>& dims);
 
 class varInfo{
     std::string id;

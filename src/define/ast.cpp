@@ -789,8 +789,145 @@ void dispatchWhileBlock(ASTPtr treeRoot) {}
 void dispatchLOrExp(ASTPtr treeRoot) {}
 void dispatchCond(ASTPtr treeRoot) {}
 
+void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::string& pattern, std::vector<int>& dims){
+    retVal_t zero;
+    std::get<0>(zero) = 0;
+    std::get<1>(zero) = -1;
+    std::get<2>(zero) = val_const_;
 
-void process_array(std::vector<retVal_t> src, std::vector<retVal_t> dst, std::string pattern);
+    if(dims.size() == 1){
+        for(int i = 0; i < src.size(); i++){
+            dst.push_back(src[i]);
+        }
+        for(int i = 0; i < dims[0] - src.size(); i++){
+            dst.push_back(zero);
+        }
+        return;
+    }
+
+    int factor = 1;
+    for(int i = 1; i < dims.size(); i++){
+        factor *= dims[i];
+    }
+
+    if(pattern.size()==2){
+        // pattern: '{' '}'
+        for(int j = 0; j < factor*dims[0]; j++){
+            dst.push_back(zero);
+        }
+        return;
+    }
+
+    // pattern: '{' ... '}'
+    int thisdimcnt = 0;
+    int index = 0;
+    int l = index;
+    int srcl = 0;
+    int cnt = 0;
+    while(true){
+        index++;
+        if(index == pattern.size()-1){
+            if(thisdimcnt == dims[0]) break;
+            std::vector<retVal_t> newSrc;
+            std::vector<retVal_t> newDst;
+            std::string newPattern(pattern, l, cnt);
+            std::vector<int> newDims;
+            for(int i = 0; i < cnt; i++){
+                newSrc.push_back(src[srcl+i]);
+            }
+            newPattern = std::string("{") + newPattern; // + std::string("}");
+//            for(int i = 0; i < factor - cnt; i++){
+//                newSrc.push_back(zero);
+//                newPattern = newPattern + std::string("n");
+//            }
+            newPattern = newPattern + std::string("}");
+            for(int i = 1; i < dims.size(); i++){
+                newDims.push_back(dims[i]);
+            }
+            process_array(newSrc, newDst, newPattern, newDims);
+            for (int i = 0; i < newDst.size(); i++) {
+                dst.push_back(newDst[i]);
+            }
+            thisdimcnt++;
+            for(int i = 0; i < (dims[0]-thisdimcnt)*factor; i++){
+                dst.push_back(zero);
+            }
+            break;
+        }
+        else if(pattern[index] == 'n'){
+            cnt++;
+            if(cnt == factor){
+                // end of a pattern
+                std::vector<retVal_t> newSrc;
+                std::vector<retVal_t> newDst;
+                std::string newPattern(pattern, l, cnt);
+                std::vector<int> newDims;
+                newPattern = std::string("{") + newPattern + std::string("}");
+                for(int i = 0; i < factor; i++){
+                    newSrc.push_back(src[srcl+i]);
+                }
+                for(int i = 1; i < dims.size(); i++){
+                    newDims.push_back(dims[i]);
+                }
+                process_array(newSrc, newDst, newPattern, newDims);
+                for (int i = 0; i < newDst.size(); i++) {
+                    dst.push_back(newDst[i]);
+                }
+                srcl += cnt;
+                cnt = 0;
+                l = index;
+                thisdimcnt++;
+            }
+        }
+        else if(pattern[index] == '{'){
+            if(cnt != 0){
+                std::vector<retVal_t> newSrc;
+                std::vector<retVal_t> newDst;
+                std::string newPattern(pattern, l, cnt);
+                std::vector<int> newDims;
+                for(int i = 0; i < cnt; i++){
+                    newSrc.push_back(src[srcl+i]);
+                }
+                newPattern = "{" + newPattern + "}";
+                for(int i = 1; i < dims.size(); i++){
+                    newDims.push_back(dims[i]);
+                }
+                process_array(newSrc, newDst, newPattern, newDims);
+                for (int i = 0; i < newDst.size(); i++) {
+                    dst.push_back(newDst[i]);
+                }
+                thisdimcnt++;
+                srcl+=cnt;
+            }
+            std::vector<retVal_t> newSrc;
+            std::vector<retVal_t> newDst;
+            std::string newPattern;
+            std::vector<int> newDims;
+            int arraycnt = 1;
+            int ncnt = 0;
+            while(arraycnt != 0){
+                index++;
+                if(pattern[index] == '{') arraycnt++;
+                if(pattern[index] == '}') arraycnt--;
+                if(pattern[index] == 'n') {
+                    newSrc.push_back(src[srcl+ncnt]);
+                    ncnt++;
+                }
+                newPattern.push_back(pattern[index]);
+            }
+            for(int i = 1; i < dims.size(); i++)newDims.push_back(dims[i]);
+            newPattern = "{" + newPattern;
+            process_array(newSrc, newDst, newPattern, newDims);
+            for(int i = 0; i < newDst.size(); i++){
+                dst.push_back(newDst[i]);
+            }
+            l = index + 1;
+            srcl += ncnt;
+            cnt = 0;
+            thisdimcnt++;
+        }
+    }
+}
 
 ASTPtr ASTRoot = nullptr;
 unsigned NestListAST::addMember(ASTPtr p) {

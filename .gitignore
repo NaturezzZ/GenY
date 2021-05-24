@@ -2,6 +2,8 @@
 *.DS_Store
 .AppleDouble
 .LSOverride
+*.dSYM
+test.cpp
 
 # vscode
 .vscode
