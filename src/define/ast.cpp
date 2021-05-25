@@ -84,11 +84,11 @@ void dispatchDecl(ASTPtr treeRoot) {
     auto child = treeRoot->children[0];
     if(node->ast_type()->isConstDecl) {
         // Decl -> ConstDecl
-        dispatchDefList(child, node->decls);
+        dispatchConstDefList(child);
     }
     else {
         // Decl -> VarDecl
-        dispatchDefList(child, node->decls);
+        dispatchDefList(child);
     }
 }
 
@@ -111,83 +111,162 @@ void dispatchConstDef(ASTPtr treeRoot){
     auto node = (DefAST*)treeRoot;
     int childsize = node->children.size();
     initValue val;
+    auto id = node->id;
     if(childsize == 1){
         // ConstDef -> IDENT '=' ConstInitVal
         val.isConst = true;
         val.isArray = false;
         val.isInit = true;
-        auto initlist = dispatchConstInitList(node->children[0]);
+        auto initchild = node->children[0];
+        std::vector<retVal_t> initval;
+        dispatchConstInitVal(initchild, initval);
+        val.value = initval;
+        int varnum = naVarTable.insert(id, curNsNum);
+        auto it = varTable.find(varnum);
+        if(it != varTable.end()) symerror("duplicate define");
+        varTable.insert(std::make_pair(varnum, val));
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var T%d\n", varnum);
+        tprintf1(buf);
     }
     else if(childsize == 2){
         // ConstDef -> IDENT Dimensions_list '=' ConstInitVal
         val.isConst = true;
         val.isArray = true;
         val.isInit = true;
-        // TODO: init value
+        auto dimchild = node->children[0];
+        auto initchild = node->children[1];
+        auto dimtmp = dispatchDimensionsList(dimchild);
+        std::vector<int> dims;
+        int factor = 1;
+        for(int i = 0; i < dimtmp.size(); i++){
+            if(std::get<2>(dimtmp[i])!=val_const_) symerror("dispatchConstDef dimension not const");
+            dims.push_back(std::get<0>(dimtmp[i]));
+            factor*=std::get<0>(dimtmp[i]);
+        }
+        std::vector<retVal_t> initsrc;
+        std::vector<retVal_t> initdst;
+        auto initpattern = dispatchConstInitVal(initchild, initsrc);
+        process_array(initsrc, initdst, initpattern, dims);
+        val.dims = dims;
+        val.value = initdst;
+        int varnum = naVarTable.insert(id, curNsNum);
+        auto it = varTable.find(varnum);
+        if(it != varTable.end()) symerror("duplicate define");
+        varTable.insert(std::make_pair(varnum, val));
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var %d T%d\n", factor*4, varnum);
+        tprintf1(buf);
     }
     else{
         symerror("dispatchConstDef children size error");
     }
 }
 
-void dispatchDefList(ASTPtr treeRoot, std::map<std::string, initValue>& target) {
+void dispatchDefList(ASTPtr treeRoot) {
     auto node = (DefListAST*) treeRoot;
     if(node->ast_type()->isDest){
         // DefList -> Def
         auto child = node->children[0];
-        dispatchDef(child, target);
+        dispatchDef(child);
     }
     else{
         // DefList -> Deflist ',' Def
         auto childList = node->children[0];
         auto childDef = node->children[1];
-        dispatchDefList(childList, target);
-        dispatchDef(childDef, target);
+        dispatchDefList(childList);
+        dispatchDef(childDef);
     }
 }
 
-void dispatchDef(ASTPtr treeRoot, std::map<std::string, initValue> & target) {
+void dispatchDef(ASTPtr treeRoot) {
     // this function add definition and its initial value into target
     auto node = (DefAST*)treeRoot;
-    initValue val;
-    if(node->isArray){
+    auto id = node->id;
+    if(node->isArray) {
         //is array
-        auto dim_p = treeRoot->children[0];
-        val.isArray = true;
-        dispatchDimensionsList(dim_p, node->dimensions);
-        if(node->withInitVal){
-            val.isInit = true;
-            auto init_p = treeRoot->children[1];
-            dispatchInitList(init_p, val.value);
+        auto dimchild = node->children[0];
+        auto dimstmp = dispatchDimensionsList(dimchild);
+        std::vector<int> dims;
+        int factor = 1;
+        for (int i = 0; i < dimstmp.size(); i++) {
+            if (std::get<2>(dimstmp[i]) != val_const_) {
+                symerror("dimension list not const");
+            }
+            factor *= std::get<0>(dimstmp[0]);
+            dims.push_back(std::get<0>(dimstmp[0]));
         }
-        else {
-            val.isInit = false;
+        if (node->withInitVal) {
+            std::vector<retVal_t> initsrc;
+            std::vector<retVal_t> initdst;
+            auto initchild = node->children[1];
+            auto initpattern = dispatchInitVal(initchild, initsrc);
+            process_array(initsrc, initdst, initpattern, dims);
+            initValue val;
+            val.isInit = 1; val.isArray = 1; val.dims = dims; val.value = initdst;
+            int varnum = naVarTable.insert(id, curNsNum);
+            auto it = varTable.find(varnum);
+            if(it != varTable.end()) symerror("duplicate define");
+            varTable.insert(std::make_pair(varnum, val));
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "var %d T%d\n", 4*factor, varnum);
+            tprintf1(buf);
+        }
+        else{
+            std::vector<retVal_t> initdst;
+            retVal_t tmpzero;
+            std::get<0>(tmpzero) = 0;
+            std::get<1>(tmpzero) = -1;
+            std::get<2>(tmpzero) = val_const_;
+            for(int i = 0; i < factor; i++) initdst.push_back(tmpzero);
+            initValue val;
+            val.isInit = 1; val.isArray = 1; val.dims = dims; val.value = initdst;
+            int varnum = naVarTable.insert(id, curNsNum);
+            auto it = varTable.find(varnum);
+            if(it != varTable.end()) symerror("duplicate define");
+            varTable.insert(std::make_pair(varnum, val));
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "var %d T%d\n", 4*factor, varnum);
+            tprintf1(buf);
         }
     }
     else{
-        //not array
-        val.isArray = false;
-        if(node->withInitVal){
-            val.isInit = true;
-            auto init_p = treeRoot->children[0];
-            dispatchInitList(init_p, val.value);
+        if (node->withInitVal) {
+            auto initchild = node->children[0];
+            std::vector<retVal_t> initval;
+            dispatchInitVal(initchild, initval);
+            initValue val;
+            val.isInit = 1; val.isArray = 0; val.value = initval;
+            int varnum = naVarTable.insert(id, curNsNum);
+            auto it = varTable.find(varnum);
+            if(it != varTable.end()) symerror("duplicate define");
+            varTable.insert(std::make_pair(varnum, val));
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "var T%d\n", varnum);
+            tprintf1(buf);
         }
-        else{
-            val.isInit = false;
+        else {
+            retVal_t zerotmp;
+            std::get<0>(zerotmp) = 0;
+            std::get<1>(zerotmp) = -1;
+            std::get<2>(zerotmp) = val_const_;
+            initValue val;
+            val.isInit = 1; val.isArray = 0; val.value.push_back(zerotmp);
+            int varnum = naVarTable.insert(id, curNsNum);
+            auto it = varTable.find(varnum);
+            if(it != varTable.end()) symerror("duplicate define");
+            varTable.insert(std::make_pair(varnum, val));
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "var T%d\n", varnum);
+            tprintf1(buf);
         }
     }
-    // above put initial value into val
-    // below put val and id into target
-    if(node->isConst){
-        val.isConst = true;
-    }
-    val.dims.clear();
-    for(int dimension : node->dimensions) val.dims.push_back(dimension);
-
-    target.insert(std::pair<std::string, initValue>(node->id, val));
-    int index = naVarTable.insert(node->id, curNsNum);
-    varTable[index] = val; // may be incorrect
-    // add def into naVarTable and varTable
 }
 
 std::vector<retVal_t> dispatchDimensionsList(ASTPtr treeRoot){
@@ -683,7 +762,7 @@ retVal_t dispatchLVal(ASTPtr treeRoot) {
             }
 
             if(property.isConst){
-                std::get<0>(ret) = property.value[cnt];
+                std::get<0>(ret) = std::get<0>(property.value[cnt]);
                 std::get<1>(ret) = -1;
                 std::get<2>(ret) = val_const_;
             }
@@ -764,7 +843,7 @@ retVal_t dispatchLVal(ASTPtr treeRoot) {
     }
     else {
         if(property.isConst){
-            std::get<0>(ret) = property.value[0];
+            std::get<0>(ret) = std::get<0>(property.value[0]);
             std::get<1>(ret) = -1;
             std::get<2>(ret) = val_const_;
         }
@@ -776,18 +855,6 @@ retVal_t dispatchLVal(ASTPtr treeRoot) {
     }
     return ret;
 }
-
-void dispatchFuncDef(ASTPtr treeRoot) {}
-void dispatchFuncParam(ASTPtr treeRoot) {}
-void dispatchBlock(ASTPtr treeRoot) {}
-void dispatchBlockItemList(ASTPtr treeRoot) {}
-void dispatchBlockItem(ASTPtr treeRoot) {}
-void dispatchStmt(ASTPtr treeRoot) {}
-void dispatchIfBlock(ASTPtr treeRoot) {}
-void dispatchWhileBlock(ASTPtr treeRoot) {}
-
-void dispatchLOrExp(ASTPtr treeRoot) {}
-void dispatchCond(ASTPtr treeRoot) {}
 
 void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::string& pattern, std::vector<int>& dims){
     retVal_t zero;
@@ -835,11 +902,7 @@ void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::
             for(int i = 0; i < cnt; i++){
                 newSrc.push_back(src[srcl+i]);
             }
-            newPattern = std::string("{") + newPattern; // + std::string("}");
-//            for(int i = 0; i < factor - cnt; i++){
-//                newSrc.push_back(zero);
-//                newPattern = newPattern + std::string("n");
-//            }
+            newPattern = std::string("{") + newPattern;
             newPattern = newPattern + std::string("}");
             for(int i = 1; i < dims.size(); i++){
                 newDims.push_back(dims[i]);
@@ -928,6 +991,20 @@ void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::
         }
     }
 }
+
+void dispatchFuncDef(ASTPtr treeRoot) {
+
+}
+
+void dispatchFuncParam(ASTPtr treeRoot) {}
+void dispatchBlock(ASTPtr treeRoot) {}
+void dispatchBlockItemList(ASTPtr treeRoot) {}
+void dispatchBlockItem(ASTPtr treeRoot) {}
+void dispatchStmt(ASTPtr treeRoot) {}
+void dispatchIfBlock(ASTPtr treeRoot) {}
+void dispatchWhileBlock(ASTPtr treeRoot) {}
+void dispatchLOrExp(ASTPtr treeRoot) {}
+void dispatchCond(ASTPtr treeRoot) {}
 
 ASTPtr ASTRoot = nullptr;
 unsigned NestListAST::addMember(ASTPtr p) {

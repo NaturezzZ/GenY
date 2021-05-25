@@ -667,11 +667,11 @@ public:
 void dispatchRoot(ASTPtr treeRoot);
 void dispatchCompUnit(ASTPtr treeRoot);
 void dispatchDecl(ASTPtr treeRoot);
-void dispatchDefList(ASTPtr treeRoot, std::map<std::string, initValue> & target);
+void dispatchDefList(ASTPtr treeRoot);
 void dispatchConstDefList(ASTPtr treeRoot);
 void dispatchConstDef(ASTPtr treeRoot);
-void dispatchDef(ASTPtr treeRoot, std::map<std::string, initValue> & target);
-std::vector<retVal_t> dispatchDimensionsList(ASTPtr treeRoot, std::vector<int> & target);
+void dispatchDef(ASTPtr treeRoot);
+std::vector<retVal_t> dispatchDimensionsList(ASTPtr treeRoot);
 
 std::string dispatchConstInitVal(ASTPtr treeRoot, std::vector<retVal_t>& target);
 std::string dispatchConstInitList(ASTPtr treeRoot, std::vector<retVal_t>& target);

@@ -7,8 +7,9 @@
 #include <bits/stdc++.h>
 #include "define/ast.h"
 #include "frontend/sysy.tab.h"
-
+typedef std::tuple<int, int, int> retVal_t;
 typedef std::pair<std::string, int> naVarType; //name, curNsNum
+
 class symtabEntry {
 public:
     symtabEntry() = default;
@@ -62,7 +63,7 @@ public:
     bool isArray;
     bool isInit;
     bool isConst;
-    std::vector<int> value;
+    std::vector<retVal_t> value;
     std::vector<int> dims;
     initValue(){
         isArray = false;
@@ -74,14 +75,14 @@ public:
         isInit = obj.isInit;
         isConst = obj.isConst;
         dims = std::vector<int>(obj.dims);
-        value = std::vector<int>(obj.value);
+        value = std::vector<retVal_t>(obj.value);
     }
     initValue & operator = (const initValue& obj){
         isArray = obj.isArray;
         isInit = obj.isInit;
         isConst = obj.isConst;
         dims = std::vector<int>(obj.dims);
-        value = std::vector<int>(obj.value);
+        value = std::vector<retVal_t>(obj.value);
         return *this;
     }
 };
@@ -93,7 +94,6 @@ extern std::map<std::string, functabEntry> funcTable;
 extern naVarTable_t naVarTable;
 extern std::map<int, initValue> varTable;
 void symerror(const char* s);
-typedef std::tuple<int, int, int> retVal_t;
 extern bool p_t;
 extern maxtCnt;
 int tprintf1(const char* s);
