@@ -993,10 +993,134 @@ void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::
 }
 
 void dispatchFuncDef(ASTPtr treeRoot) {
+    auto node = (FuncDefAST*)treeRoot;
+    functabEntry entry;
+    curNsNum = maxNsNum;
+    nsRootTable.insert(std::make_pair(node, curNsNum));
+    maxNsNum++;
+    if(node->ast_type()->isReturnInt) entry.retInt = true;
+    else entry.retInt = false;
+    ASTPtr blockchild = nullptr;
+    if(node->ast_type()->withFuncFParam){
+        auto paramchild = node->children[0];
+        blockchild = node->children[1];
+        entry.paramNum = getFuncFParamNumber(paramchild);
+    }
+    else{
+        blockchild = node->children[0];
+        entry.paramNum = 0;
+    }
+    funcTable.insert(std::make_pair(node->id, entry));
 
+    char buf[100];
+    memset(buf, 0, sizeof(buf));
+    sprintf(buf, "f_%s [%d]\n", node->id.c_str(), entry.paramNum);
+    tprintf2(buf);
+
+    if(node->ast_type()->withFuncFParam){
+        auto paramchild = node->children[0];
+        dispatchFuncFParamList(paramchild);
+    }
+
+    dispatchBlock(blockchild);
+
+    memset(buf, 0, sizeof(buf));
+    sprintf(buf, "end f_%s\n", node->id.c_str());
+    tprintf2(buf);
 }
 
-void dispatchFuncParam(ASTPtr treeRoot) {}
+int getFuncFParamNumber(ASTPtr treeRoot) {
+    auto node = (FuncParamAST*) treeRoot;
+    int s = node->children.size();
+    if(s == 1){
+        return 1;
+    }
+    else if(s == 2){
+        return getFuncFParamNumber(node->children[0])+1;
+    }
+    else{
+        symerror("getFuncFParamNumber children number fault");
+    }
+}
+
+int dispatchFuncFParamList(ASTPtr treeRoot) {
+    // add FuncFParams into varTable
+    auto node = (FuncParamAST*) treeRoot;
+    int s = node->children.size();
+    auto id = node->id;
+
+    if(s == 1){
+        dispatchFuncFParam(node->children[0], 0);
+        return 1;
+    }
+    else if(s == 2){
+        int tmp = dispatchFuncFParamList(node->children[0]);
+        dispatchFuncFParam(node->children[1], tmp);
+        return tmp+1;
+    }
+    else{
+        symerror("FuncFParamList children number fault");
+    }
+}
+
+void dispatchFuncFParam(ASTPtr treeRoot, int paramIndex){
+    auto node = (FuncParamAST*)treeRoot;
+    int s = node->children.size();
+    auto id = node->id;
+    if(s == 0){
+        // add it into naVarTable, varTable
+        auto key = std::make_pair(id, curNsNum);
+        int index = naVarTable.getIndex(key);
+        if(index != -1) symerror("FuncFParam duplicated define");
+        index = naVarTable.insert(id, curNsNum);
+        int tnum = maxtCnt;
+        maxtCnt++;
+        retVal_t val;
+        std::get<0>(val) = tnum;
+        std::get<1>(val) = -1;
+        std::get<2>(val) = val_tvar_;
+        initValue initval;
+        initval.isArray = false;
+        initval.isInit = true;
+        initval.isConst = false;
+        initval.value.push_back(val);
+        varTable.insert(std::make_pair(index, initval));
+
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = p%d\n", tnum, paramIndex);
+        tprintf2(buf);
+    }
+    else if(s == 1){
+        auto key = std::make_pair(id, curNsNum);
+        int index = naVarTable.getIndex(key);
+        if(index != -1) symerror("FuncFParam duplicated define");
+        index = naVarTable.insert(id, curNsNum);
+        int tnum = maxtCnt;
+        maxtCnt++;
+        retVal_t val;
+        std::get<0>(val) = tnum;
+        std::get<1>(val) = -1;
+        std::get<2>(val) = val_tvar_;
+        initValue initval;
+        initval.isArray = true;
+        initval.isInit = true;
+        initval.isConst = false;
+        initval.value.push_back(val);
+        varTable.insert(std::make_pair(index, initval));
+
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = p%d\n", tnum, paramIndex);
+        tprintf2(buf);
+    }
+}
 void dispatchBlock(ASTPtr treeRoot) {}
 void dispatchBlockItemList(ASTPtr treeRoot) {}
 void dispatchBlockItem(ASTPtr treeRoot) {}

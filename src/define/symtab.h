@@ -18,14 +18,23 @@ public:
 class functabEntry {
 public:
     int paramNum;
+    bool retInt;
     functabEntry() {
         paramNum = 0;
+        retInt = 0;
     }
     explicit functabEntry(int n) {
         paramNum = n;
+        retInt = 0;
     }
     functabEntry(const functabEntry& obj){
         paramNum = obj.paramNum;
+        retInt = obj.retInt;
+    }
+    functabEntry & operator = (const functabEntry & obj){
+        paramNum = obj.paramNum;
+        retInt = obj.retInt;
+        return *this;
     }
 };
 
