@@ -11,6 +11,9 @@ int curNsNum = 0;
 int mactCnt = 0;
 naVarTable_t naVarTable;
 std::map<int, initValue> varTable; // index -> property
+int breakDst = 0;
+int continueDst = 0;
+int maxlCnt = 0;
 void symerror(const char* s){
     fprintf(stderr, "[ERROR in symbol table], %s\n", s);
     abort();

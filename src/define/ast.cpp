@@ -994,6 +994,7 @@ void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::
 
 void dispatchFuncDef(ASTPtr treeRoot) {
     auto node = (FuncDefAST*)treeRoot;
+    int lastNs = curNsNum;
     functabEntry entry;
     curNsNum = maxNsNum;
     nsRootTable.insert(std::make_pair(node, curNsNum));
@@ -1027,6 +1028,7 @@ void dispatchFuncDef(ASTPtr treeRoot) {
     memset(buf, 0, sizeof(buf));
     sprintf(buf, "end f_%s\n", node->id.c_str());
     tprintf2(buf);
+    curNsNum = lastNs;
 }
 
 int getFuncFParamNumber(ASTPtr treeRoot) {
@@ -1121,14 +1123,183 @@ void dispatchFuncFParam(ASTPtr treeRoot, int paramIndex){
         tprintf2(buf);
     }
 }
-void dispatchBlock(ASTPtr treeRoot) {}
-void dispatchBlockItemList(ASTPtr treeRoot) {}
-void dispatchBlockItem(ASTPtr treeRoot) {}
-void dispatchStmt(ASTPtr treeRoot) {}
-void dispatchIfBlock(ASTPtr treeRoot) {}
-void dispatchWhileBlock(ASTPtr treeRoot) {}
-void dispatchLOrExp(ASTPtr treeRoot) {}
-void dispatchCond(ASTPtr treeRoot) {}
+
+void dispatchBlock(ASTPtr treeRoot) {
+    auto node = (BlockAST*)treeRoot;
+    dispatchBlockItemList(node->children[0]);
+}
+
+void dispatchBlockItemList(ASTPtr treeRoot) {
+    auto node = (BlockItemListAST*) treeRoot;
+    int s = node->children.size();
+    if(s == 0){
+        return;
+    }
+    else if(s == 2){
+        dispatchBlockItem(node->children[0]);
+        dispatchBlockItemList(node->children[1]);
+        return;
+    }
+    else{
+        symerror("BlockItemList children number fault");
+    }
+}
+
+void dispatchBlockItem(ASTPtr treeRoot) {
+    auto node = (BlockItemAST*) treeRoot;
+    int s = node->children.size();
+    if(s == 1){
+        auto child = node->children[0];
+        if(child->ast_type()->type == TDecl){
+            dispatchDecl(child);
+        }
+        else if(child->ast_type()->type == TStmt){
+            dispatchStmt(child);
+        }
+        else{
+            symerror("BlockItem children type error");
+        }
+    }
+    else{
+        symerror("BlockItem children number error");
+    }
+}
+
+void dispatchStmt(ASTPtr treeRoot) {
+    auto node = (StmtAST*) treeRoot;
+    int lastNs = curNsNum;
+    switch (node->type){
+        case STIF: {
+            curNsNum = maxNsNum;
+            maxNsNum++;
+            dispatchIfBlock(node->children[0]);
+            break;
+        }
+        case STBLOCK: {
+            curNsNum = maxNsNum;
+            maxNsNum++;
+            dispatchBlock(node->children[0]);
+            break;
+        }
+        case STWHILE: {
+            curNsNum = maxNsNum;
+            maxNsNum++;
+            dispatchWhileBlock(node->children[0]);
+            break;
+        }
+        case STASSIGN: {
+            auto lvalchild = node->children[0];
+            auto expchild = node->children[1];
+            auto retval = dispatchLVal(lvalchild);
+            auto retexp = dispatchExp(expchild);
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            std::string ans;
+            switch (std::get<2>(retval)) {
+                case val_tvar_:
+                    sprintf(buf, "t%d = ", std::get<0>(retval));
+                    break;
+                case val_Tvar_:
+                    sprintf(buf, "T%d = ", std::get<0>(retval));
+                    break;
+                case val_array_:
+                    sprintf(buf, "T%d[%d] = ", std::get<0>(retval), std::get<1>(retval));
+                    break;
+                case val_const_:
+                default:
+                    symerror("stmt assign lval type fault");
+            }
+            ans = std::string(buf);
+            memset(buf, 0, sizeof(buf));
+            switch (std::get<2>(retexp)) {
+                case val_tvar_:
+                    sprintf(buf, "t%d\n", std::get<0>(retexp));
+                    break;
+                case val_Tvar_:
+                    sprintf(buf, "T%d\n", std::get<0>(retexp));
+                    break;
+                case val_array_:
+                    sprintf(buf, "T%d[%d]\n", std::get<0>(retexp), std::get<1>(retexp));
+                    break;
+                case val_const_:
+                default:
+                    symerror("stmt assign exp type fault");
+            }
+            ans = ans + std::string(buf);
+            tprintf2(ans.c_str());
+            memset(buf, 0, sizeof(buf));
+            break;
+        }
+        case STSEMI: {
+            break;
+        }
+        case STEXP: {
+            auto childexp = node->children[0];
+            dispatchExp(childexp);
+            break;
+        }
+        case STBREAK: {
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "goto l%d\n", breakDst);
+            tprintf2(buf);
+            break;
+        }
+        case STCONTINUE: {
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "goto l%d\n", continueDst);
+            tprintf2(buf);
+            break;
+        }
+        case STRETURN: {
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "return\n");
+            tprintf2(buf);
+            break;
+        }
+        case STRETURNEXP: {
+            auto expchild = node->children[0];
+            auto res = dispatchExp(expchild);
+            char buf[100];
+            memset(buf, 0, sizeof(buf));
+            switch(std::get<2>(res)){
+                case val_const_:
+                    sprintf(buf, "return %d\n", std::get<0>(res));
+                    break;
+                case val_tvar_:
+                    sprintf(buf, "return t%d\n", std::get<0>(res));
+                    break;
+                case val_Tvar_:
+                    sprintf(buf, "return T%d\n", std::get<0>(res));
+                    break;
+                case val_array_:
+                    sprintf(buf, "return T%d[t%d]\n", std::get<0>(res), std::get<1>(res));
+                    break;
+                default:
+                    symerror("return exp type error");
+            }
+            tprintf2(buf);
+        }
+        default:
+            symerror("Stmt type error");
+    }
+    curNsNum = lastNs;
+}
+
+void dispatchIfBlock(ASTPtr treeRoot) {
+
+}
+void dispatchWhileBlock(ASTPtr treeRoot) {
+
+}
+void dispatchLOrExp(ASTPtr treeRoot) {
+
+}
+void dispatchCond(ASTPtr treeRoot) {
+
+}
 
 ASTPtr ASTRoot = nullptr;
 unsigned NestListAST::addMember(ASTPtr p) {

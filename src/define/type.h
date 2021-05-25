@@ -9,6 +9,19 @@ class BaseType;
 using TypePtr = std::shared_ptr<BaseType>;
 using TypePtrList = std::vector<TypePtr>;
 
+enum STMT_TYPE{
+    STIF,
+    STBLOCK,
+    STWHILE,
+    STASSIGN,
+    STSEMI,
+    STEXP,
+    STBREAK,
+    STCONTINUE,
+    STRETURN,
+    STRETURNEXP,
+};
+
 enum VAL_TYPE{
     val_const_ = 0,
     val_tvar_,

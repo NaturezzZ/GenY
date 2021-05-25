@@ -453,6 +453,7 @@ public:
 
 class StmtAST : public BaseAST{
 public:
+    int type;
     StmtAST():BaseAST(){
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TStmt;

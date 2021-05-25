@@ -385,42 +385,52 @@ BlockItem:
 Stmt: 
     IfBlock {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STIF;
         attachNode($$, $1);
     }
     | Block {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STBLOCK;
         attachNode($$, $1);
     }
     | WhileBlock {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STWHILE;
         attachNode($$, $1);
     }
     | LVal '=' Exp ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STASSIGN;
         attachNode($$, $1);
         attachNode($$, $3);
     }
     | ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STSEMI;
     }
     | Exp ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STEXP;
         attachNode($$, $1);
     }
     | BREAK ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STBREAK;
         $$->ast_type()->isBreak = true;
     }
     | CONTINUE ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STCONTINUE;
         $$->ast_type()->isContinue = true;
     }
     | RETURN ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STRETURN;
         $$->ast_type()->isReturn = true;
     }
     | RETURN Exp ';' {
         $$ = new StmtAST();
+        ((StmtAST*)$$)->type = STRETURNEXP;
         $$->ast_type()->isReturn = true;
         $$->ast_type()->withReturnValue = true;
         attachNode($$, $2);
