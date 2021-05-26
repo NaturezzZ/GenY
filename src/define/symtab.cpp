@@ -8,30 +8,35 @@ std::map<ASTPtr, int> nsRootTable;
 std::map<std::string, functabEntry> funcTable;
 int maxNsNum = 0; // ns numbers < maxNsNum
 int curNsNum = 0;
-int mactCnt = 0;
+int maxtCnt = 0;
 naVarTable_t naVarTable;
 std::map<int, initValue> varTable; // index -> property
 int breakDst = 0;
 int continueDst = 0;
 int maxlCnt = 0;
+
 void symerror(const char* s){
     fprintf(stderr, "[ERROR in symbol table], %s\n", s);
     abort();
 }
+
 bool print_flag1 = true;
 bool print_flag2 = false;
+
 int tprintf1(const char* s){
     if(print_flag1) {
         return fprintf(yyout, "%s", s);
     }
     return -1;
 }
+
 int tprintf2(const char* s){
     if(print_flag2){
         return fprintf(yyout, "%s", s);
     }
     return -1;
 }
+
 void switchAndCopy(retVal_t & obj, int tnum){
     char buf[100];
     switch(std::get<2>(obj)){
@@ -57,6 +62,7 @@ void switchAndCopy(retVal_t & obj, int tnum){
             break;
     }
 }
+
 void dectvar(int tnum){
     char buf[100];
     memset(buf, 0, sizeof(buf));

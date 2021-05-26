@@ -664,7 +664,6 @@ LOrExp:
     }
     | LOrExp OP_OR LAndExp {
         $$ = new ExpAST();
-        $$->getValueInt() = BOP_OR;
         attachNode($$, $1);
         // attachNode($$, $2);
         attachNode($$, $3);

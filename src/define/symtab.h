@@ -9,6 +9,7 @@
 #include "frontend/sysy.tab.h"
 typedef std::tuple<int, int, int> retVal_t;
 typedef std::pair<std::string, int> naVarType; //name, curNsNum
+extern std::map<ASTPtr, int> nsRootTable;
 
 class symtabEntry {
 public:
@@ -46,11 +47,41 @@ public:
         maxNaVarNum = 0;
     }
     int getIndex(const naVarType & key){
-        std::map<naVarType, int>::iterator it;
-        it = data.find(key);
-        if(it == data.end()) return -1;
-        else{
-            return (*it).second;
+        auto id = key.first;
+        auto nsnum = key.second;
+        ASTPtr nsroot = nullptr;
+        auto nsit = nsRootTable.begin();
+        while(nsit != nsRootTable.end()){
+            if(nsit->second != nsnum) nsit++;
+            else{
+                nsroot = nsit->first;
+                break;
+            }
+        }
+        if(nsroot== nullptr) {
+            std::cerr << "[ERROR] get index error" << std::endl;
+            abort();
+        }
+
+        while(1) {
+            if(nsRootTable.find(nsroot) == nsRootTable.end()){
+                nsroot = nsroot->father;
+                continue;
+            }
+
+            int thisLayerNsNum = nsRootTable.find(nsroot)->first;
+            auto key = std::make_pair(id, thisLayerNsNum);
+            auto it = data.find(key);
+            if (it == data.end()){
+                if(nsroot == ASTRoot){
+                    std::cerr << "[ERROR] can not find index at root" << std::endl;
+                    abort();
+                }
+                continue;
+            }
+            else {
+                return it->second;
+            }
         }
     }
     int insert(const std::string & id, const int & nsNum){
@@ -96,20 +127,21 @@ public:
     }
 };
 
-extern std::map<ASTPtr, int> nsRootTable;
 extern int curNsNum;
 extern int maxNsNum;
 extern std::map<std::string, functabEntry> funcTable;
 extern naVarTable_t naVarTable;
 extern std::map<int, initValue> varTable;
-extern int breakDst = 0;
-extern int continueDst = 0;
-extern int maxlCnt = 0;
+extern int breakDst;
+extern int continueDst;
+extern int maxlCnt;
 void symerror(const char* s);
 extern bool p_t;
-extern maxtCnt;
+extern int maxtCnt;
 int tprintf1(const char* s);
 int tprintf2(const char* s);
+extern bool print_flag1;
+extern bool print_flag2;
 void switchAndCopy(retVal_t & obj, int tnum);
 void dectvar(int tnum);
 #endif//GENY_SYMTAB_H

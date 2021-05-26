@@ -555,7 +555,26 @@ retVal_t dispatchUnaryExp(ASTPtr treeRoot) {
     }
     else if(size == 1 && child0->ast_type()->type == TFuncParam){
         // UnaryExp -> IDENT '(' FuncRParams ')'
-        // TODO: FuncRParams
+        auto retVals = dispatchFuncRParamList(node->children[1]);
+        int paramNum = retVals.size();
+        char buf[100];
+        for(int i = 0; i < paramNum; i++){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "param t%d\n", std::get<0>(retVals[i]));
+            tprintf2(buf);
+        }
+        int tnum = maxtCnt; maxtCnt++;
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = call f%s\n", tnum, node->id.c_str());
+        tprintf2(buf);
+        retVal_t val;
+        std::get<0>(val) = tnum;
+        std::get<1>(val) = -1;
+        std::get<2>(val) = val_tvar_;
+        return val;
     }
     else if(size == 2){
         // UnaryExp -> UnaryOp UnaryExp
@@ -1005,7 +1024,7 @@ void dispatchFuncDef(ASTPtr treeRoot) {
     if(node->ast_type()->withFuncFParam){
         auto paramchild = node->children[0];
         blockchild = node->children[1];
-        entry.paramNum = getFuncFParamNumber(paramchild);
+        entry.paramNum = getFuncParamNumber(paramchild);
     }
     else{
         blockchild = node->children[0];
@@ -1023,6 +1042,11 @@ void dispatchFuncDef(ASTPtr treeRoot) {
         dispatchFuncFParamList(paramchild);
     }
 
+    // for main function, initialize variables
+    if(print_flag2 && node->id == std::string("main")){
+        // TODO: initialized variables, how to do? where to do?
+    }
+
     dispatchBlock(blockchild);
 
     memset(buf, 0, sizeof(buf));
@@ -1031,17 +1055,17 @@ void dispatchFuncDef(ASTPtr treeRoot) {
     curNsNum = lastNs;
 }
 
-int getFuncFParamNumber(ASTPtr treeRoot) {
+int getFuncParamNumber(ASTPtr treeRoot) {
     auto node = (FuncParamAST*) treeRoot;
     int s = node->children.size();
     if(s == 1){
         return 1;
     }
     else if(s == 2){
-        return getFuncFParamNumber(node->children[0])+1;
+        return getFuncParamNumber(node->children[0])+1;
     }
     else{
-        symerror("getFuncFParamNumber children number fault");
+        symerror("getFuncParamNumber children number fault");
     }
 }
 
@@ -1121,6 +1145,37 @@ void dispatchFuncFParam(ASTPtr treeRoot, int paramIndex){
         memset(buf, 0, sizeof(buf));
         sprintf(buf, "t%d = p%d\n", tnum, paramIndex);
         tprintf2(buf);
+    }
+}
+
+std::vector<retVal_t> dispatchFuncRParamList(ASTPtr treeRoot) {
+    auto node = (FuncParamAST*) treeRoot;
+    int s = node->children.size();
+    std::vector<retVal_t> ans;
+    if(s == 1){
+        auto exp = dispatchExp(node->children[0]);
+        retVal_t val;
+        int tnum = maxtCnt; maxtCnt++;
+        std::get<0>(val) = tnum;
+        std::get<1>(val) == -1;
+        std::get<2>(val) = val_tvar_;
+        char buf[100]; memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        switchAndCopy(exp, tnum);
+        ans.push_back(val);
+        return ans;
+    }
+    else if(s == 2){
+        auto child1 = dispatchFuncRParamList(node->children[0]);
+        auto child2 = dispatchExp(node->children[1]);
+        int childsize = child1.size();
+        for(int i = 0; i < childsize; i++) ans.push_back(child1[i]);
+        ans.push_back(child2);
+        return ans;
+    }
+    else{
+        symerror("dispatchFuncRParamList children number error");
     }
 }
 
@@ -1289,16 +1344,327 @@ void dispatchStmt(ASTPtr treeRoot) {
 }
 
 void dispatchIfBlock(ASTPtr treeRoot) {
-
+    auto node = (IfBlockAST*)treeRoot;
+    int s = node->children.size();
+    if(s == 3){
+        auto cond = dispatchCond(node->children[0]);
+        char buf[100];
+        int elseLabel = maxlCnt;
+        maxlCnt++;
+        int nextLabel = maxlCnt;
+        maxlCnt++;
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "if t%d == 0 goto l%d\n", std::get<0>(cond), elseLabel);
+        tprintf2(buf);
+        dispatchStmt(node->children[1]);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "goto l%d\n", nextLabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", elseLabel);
+        tprintf2(buf);
+        dispatchStmt(node->children[2]);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "goto l%d\n", nextLabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", nextLabel);
+        tprintf2(buf);
+    }
+    else if(s == 2){
+        auto cond = dispatchCond(node->children[0]);
+        char buf[100];
+        int nextLabel = maxlCnt;
+        maxlCnt++;
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "if t%d == 0 goto l%d\n", std::get<0>(cond), nextLabel);
+        tprintf2(buf);
+        dispatchStmt(node->children[1]);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "goto l%d\n", nextLabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", nextLabel);
+        tprintf2(buf);
+    }
+    else{
+        symerror("IfBlock children number error");
+    }
 }
+
 void dispatchWhileBlock(ASTPtr treeRoot) {
+    auto node = (WhileBlockAST*)treeRoot;
+    int startLabel = maxlCnt;
+    maxlCnt++;
+    int nextLabel = maxlCnt;
+    maxlCnt++;
+    continueDst = startLabel;
+    breakDst = nextLabel;
+    auto cond = dispatchCond(node->children[0]);
+    char buf[100];
 
+    memset(buf, 0, sizeof(buf));
+    sprintf(buf, "l%d:\n", startLabel);
+    tprintf2(buf);
+    memset(buf, 0, sizeof(buf));
+    sprintf(buf, "if t%d == 0 goto l%d\n", std::get<0>(cond), nextLabel);
+    tprintf2(buf);
+
+    dispatchStmt(node->children[1]);
+
+    memset(buf, 0, sizeof(buf));
+    sprintf(buf, "l%d:\n", nextLabel);
+    tprintf2(buf);
 }
-void dispatchLOrExp(ASTPtr treeRoot) {
 
+retVal_t dispatchLOrExp(ASTPtr treeRoot) {
+    auto node = (LOrExp*) treeRoot;
+    int s = node->children.size();
+    if(s == 1){
+        return dispatchLAndExp(node->children[0]);
+    }
+    else if(s == 2){
+        auto orexp = dispatchLOrExp(node->children[0]);
+        auto andexp = dispatchLAndExp(node->children[1]);
+        if(std::get<2>(orexp) != val_tvar_ || std::get<2>(andexp) != val_tvar_) {
+            symerror("children return value error in dispatchLOrExp");
+        }
+        int tnum = maxtCnt;
+        maxtCnt++;
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        int num1 = std::get<0>(orexp);
+        int num2 = std::get<0>(andexp);
+        int truelabel = maxlCnt;
+        maxlCnt++;
+        int nextlabel = maxlCnt;
+        maxlCnt++;
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "if t%d == 1 goto l%d\n", num1, truelabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "if t%d == 1 goto l%d\n", num2, truelabel);
+        tprintf2(buf);
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = 0\n", tnum);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "goto l%d\n", nextlabel);
+        tprintf2(buf);
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", truelabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = 1\n", tnum);
+        tprintf2(buf);
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", nextlabel);
+        tprintf2(buf);
+
+        retVal_t val;
+        std::get<0>(val) = tnum;
+        std::get<1>(val) = -1;
+        std::get<2>(val) = val_tvar_;
+        return val;
+    }
+    else{
+        symerror("LOrExp children number fault");
+    }
 }
-void dispatchCond(ASTPtr treeRoot) {
 
+retVal_t dispatchLAndExp(ASTPtr treeRoot) {
+    auto node = treeRoot;
+    int s = node->children.size();
+    if(s == 1){
+        return dispatchEqExp(node->children[0]);
+    }
+    else if(s == 2){
+        auto andexp = dispatchLAndExp(node->children[0]);
+        auto eqexp = dispatchEqExp(node->children[1]);
+        if(std::get<2>(andexp) != val_tvar_ || std::get<2>(eqexp) != val_tvar_) {
+            symerror("children return value error in dispatchLAndExp");
+        }
+        int tnum = maxtCnt;
+        maxtCnt++;
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        int num1 = std::get<0>(andexp);
+        int num2 = std::get<0>(eqexp);
+        int falselabel = maxlCnt;
+        maxlCnt++;
+        int nextlabel = maxlCnt;
+        maxlCnt++;
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "if t%d == 0 goto l%d\n", num1, falselabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "if t%d == 0 goto l%d\n", num2, falselabel);
+        tprintf2(buf);
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = 1\n", tnum);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "goto l%d\n", nextlabel);
+        tprintf2(buf);
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", falselabel);
+        tprintf2(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "t%d = 0\n", tnum);
+        tprintf2(buf);
+
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "l%d:\n", nextlabel);
+        tprintf2(buf);
+
+        retVal_t val;
+        std::get<0>(val) = tnum;
+        std::get<1>(val) = -1;
+        std::get<2>(val) = val_tvar_;
+        return val;
+    }
+    else{
+        symerror("LAndExp children number fault");
+    }
+}
+
+retVal_t dispatchEqExp(ASTPtr treeRoot) {
+    auto node = (ExpAST*) treeRoot;
+    int s = node->children.size();
+    retVal_t val;
+    std::get<1>(val) = -1;
+    std::get<2>(val) = val_tvar_;
+    if(s == 1){
+        auto exp = dispatchExp(node->children[0]);
+        int tnum = maxtCnt;
+        maxtCnt++;
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        switchAndCopy(exp, tnum);
+        std::get<0>(val) = tnum;
+        return val;
+    }
+    else if(s == 3){
+        int tnum = maxtCnt; maxtCnt++;
+        int tnum1 = maxtCnt; maxtCnt++;
+        int tnum2 = maxtCnt; maxtCnt++;
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum1);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum2);
+        tprintf1(buf);
+        auto eqexp = dispatchEqExp(node->children[0]);
+        auto relexp = dispatchRelExp(node->children[2]);
+        auto op = ((OpAST*)(node->children[1]))->op;
+        if(op == BOP_EQ){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "t%d = t%d == t%d\n", tnum, tnum1, tnum2);
+            tprintf2(buf);
+        }
+        else if(op == BOP_NE){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "t%d = t%d != t%d\n", tnum, tnum1, tnum2);
+            tprintf2(buf);
+        }
+        else{
+            symerror("Op type error");
+        }
+        std::get<0>(val) = tnum;
+        return val;
+    }
+    else{
+        symerror("EqExp children number error");
+    }
+}
+
+retVal_t dispatchRelExp(ASTPtr treeRoot) {
+    auto node = (ExpAST*) treeRoot;
+    int s = node->children.size();
+    retVal_t val;
+    std::get<1>(val) = -1;
+    std::get<2>(val) = val_tvar_;
+    if(s == 1){
+        auto exp = dispatchAddExp(node->children[0]);
+        int tnum = maxtCnt;
+        maxtCnt++;
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        switchAndCopy(exp, tnum);
+        std::get<0>(val) = tnum;
+        return val;
+    }
+    else if(s == 3){
+        int tnum = maxtCnt; maxtCnt++;
+        int tnum1 = maxtCnt; maxtCnt++;
+        int tnum2 = maxtCnt; maxtCnt++;
+        char buf[100];
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum1);
+        tprintf1(buf);
+        memset(buf, 0, sizeof(buf));
+        sprintf(buf, "var t%d\n", tnum2);
+        tprintf1(buf);
+        auto eqexp = dispatchRelExp(node->children[0]);
+        auto relexp = dispatchAddExp(node->children[2]);
+        auto op = ((OpAST*)(node->children[1]))->op;
+        if(op == '<'){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "t%d = t%d < t%d\n", tnum, tnum1, tnum2);
+            tprintf2(buf);
+        }
+        else if(op == '>'){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "t%d = t%d > t%d\n", tnum, tnum1, tnum2);
+            tprintf2(buf);
+        }
+        else if(op == BOP_LE){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "t%d = t%d <= t%d\n", tnum, tnum1, tnum2);
+            tprintf2(buf);
+        }
+        else if(op == BOP_GE){
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "t%d = t%d >= t%d\n", tnum, tnum1, tnum2);
+            tprintf2(buf);
+        }
+        else{
+            symerror("Op type error");
+        }
+        std::get<0>(val) = tnum;
+        return val;
+    }
+    else{
+        symerror("EqExp children number error");
+    }
+}
+
+retVal_t dispatchCond(ASTPtr treeRoot) {
+    auto node = (CondAST*) treeRoot;
+    auto ret = dispatchLOrExp(node->children[0]);
+    return ret;
 }
 
 ASTPtr ASTRoot = nullptr;
