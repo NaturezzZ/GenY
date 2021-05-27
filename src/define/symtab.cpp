@@ -69,3 +69,24 @@ void dectvar(int tnum){
     sprintf(buf, "var t%d\n", tnum);
     tprintf1(buf);
 }
+
+std::string getInitValString(retVal_t & val) {
+    int type = std::get<2>(val);
+    char buf[100]; memset(buf, 0, sizeof(buf));
+    switch(type){
+        case val_tvar_:
+            sprintf(buf, "t%d", std::get<0>(val));
+            return std::string(buf);
+        case val_Tvar_:
+            sprintf(buf, "T%d", std::get<0>(val));
+            return std::string(buf);
+        case val_const_:
+            sprintf(buf, "%d", std::get<0>(val));
+            return std::string(buf);
+        case val_array_:
+            sprintf(buf, "T%d[t%d]", std::get<0>(val), std::get<1>(val));
+            return std::string(buf);
+        default:
+            symerror("retval type error");
+    }
+}

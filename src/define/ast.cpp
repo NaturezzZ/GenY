@@ -233,6 +233,7 @@ void dispatchDef(ASTPtr treeRoot) {
             sprintf(buf, "var %d T%d\n", 4*factor, varnum);
             tprintf1(buf);
         }
+        // TODO: variable array list initialization
     }
     else{
         if (node->withInitVal) {
@@ -266,6 +267,7 @@ void dispatchDef(ASTPtr treeRoot) {
             sprintf(buf, "var T%d\n", varnum);
             tprintf1(buf);
         }
+        // TODO: varaiable initialization
     }
 }
 
@@ -1044,7 +1046,43 @@ void dispatchFuncDef(ASTPtr treeRoot) {
 
     // for main function, initialize variables
     if(print_flag2 && node->id == std::string("main")){
-        // TODO: initialized variables, how to do? where to do?
+        auto it = nsRootTable.find(ASTRoot);
+        if(it == nsRootTable.end()){
+            symerror("global ns not defined");
+        }
+        int globalNsNum = it->second;
+        auto varit = naVarTable.data.begin();
+        while(varit != naVarTable.data.end()){
+            auto key = varit->first;
+            int varNsNum = key.second;
+            int varIndex = varit->second;
+            std::string varName = key.first;
+            if(varNsNum == globalNsNum){
+                auto varinfo = varTable.find(varIndex);
+                auto initval = varinfo->second;
+                if(initval.isInit){
+                    if(initval.isArray){
+                        int arraysize = initval.value.size();
+                        for(int i = 0; i < arraysize; i++){
+                            auto ansString = getInitValString(initval.value[i]);
+                            char buf[100]; memset(buf, 0, sizeof(buf));
+                            sprintf(buf, "T%d[%d] = %s\n", varIndex, i*4, ansString.c_str());
+                            tprintf2(buf);
+                        }
+                    }
+                    else{
+                        auto ansString = getInitValString(initval.value[0]);
+                        char buf[100]; memset(buf, 0, sizeof(buf));
+                        sprintf(buf, "T%d = %s\n", varIndex, ansString.c_str());
+                        tprintf2(buf);
+                    }
+                }
+                else{
+                    symerror("initval is not initialized");
+                }
+            }
+            varit++;
+        }
     }
 
     dispatchBlock(blockchild);

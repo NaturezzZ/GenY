@@ -144,4 +144,5 @@ extern bool print_flag1;
 extern bool print_flag2;
 void switchAndCopy(retVal_t & obj, int tnum);
 void dectvar(int tnum);
+std::string getInitValString(retVal_t & val);
 #endif//GENY_SYMTAB_H
