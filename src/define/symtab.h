@@ -5,9 +5,10 @@
 #ifndef GENY_SYMTAB_H
 #define GENY_SYMTAB_H
 #include <bits/stdc++.h>
+class initValue;
+typedef std::tuple<int, int, int> retVal_t;
 #include "define/ast.h"
 #include "frontend/sysy.tab.h"
-typedef std::tuple<int, int, int> retVal_t;
 typedef std::pair<std::string, int> naVarType; //name, curNsNum
 extern std::map<ASTPtr, int> nsRootTable;
 
@@ -69,7 +70,7 @@ public:
                 continue;
             }
 
-            int thisLayerNsNum = nsRootTable.find(nsroot)->first;
+            int thisLayerNsNum = nsRootTable.find(nsroot)->second;
             auto key = std::make_pair(id, thisLayerNsNum);
             auto it = data.find(key);
             if (it == data.end()){

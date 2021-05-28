@@ -39,7 +39,6 @@ comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 "else"		{ return ELSE; }
 "int" 		{ printf("int\n"); return INT; }
 "if"		{ return IF; }
-"main"		{ return MAIN; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }
 "void"      { return VOID; }

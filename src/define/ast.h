@@ -6,17 +6,16 @@
 #define GENY_AST_H
 #include <bits/stdc++.h>
 class BaseAST;
+
 class DefAST;
 using ASTPtr = BaseAST* ;
 using ASTPtrList = std::vector<ASTPtr>;
+extern ASTPtr ASTRoot;
+
 #include "define/type.h"
-
-#include "define/symtab.h"
-#include <utility>
-
 class BaseAST {
 public:
-    virtual ~BaseAST() = default;
+//    virtual ~BaseAST() = default;
 //    // return true if current AST is a literal value
 //    virtual bool IsLiteral() const = 0;
 //    // return true if current AST is a initializer list
@@ -53,6 +52,10 @@ public:
 //private:
     TypePtr ast_type_;
 };
+#include "define/symtab.h"
+#include <utility>
+
+
 
 class RootAST : public BaseAST {
 public:
@@ -61,11 +64,11 @@ public:
         tmpType.get()->type = TRoot;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt(){
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt(){
         static int a = 0;
         return a;
     }
@@ -81,11 +84,11 @@ public:
         tmpType.get()->withFuncDef = false;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -100,11 +103,11 @@ public:
         tmpType.get()->type = TDecl;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -128,11 +131,11 @@ public:
         tmpType.get()->type = TDefList;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -196,11 +199,11 @@ public:
 //        set_ast_type(tmpType);
 //    }
      */
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -231,10 +234,10 @@ public:
         tmpType.get()->type = TInitList;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         return value;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -263,10 +266,10 @@ public:
         tmpType.get()->type = TInitList;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         return value;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -281,10 +284,10 @@ public:
         tmpType.get()->type = TConstExp;
         set_ast_type(tmpType);
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         return value;
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
@@ -303,10 +306,10 @@ public:
         tmpType.get()->type = TNestList;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         return data;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -319,11 +322,11 @@ public:
         tmpType.get()->type = TAddExp;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -353,11 +356,11 @@ public:
         set_ast_type(tmpType);
         pNum = 0;
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -378,11 +381,11 @@ public:
         tmpType.get()->type = TFuncParam;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -397,11 +400,11 @@ public:
         value = 0;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -414,11 +417,11 @@ public:
         tmpType.get()->type = TBlock;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -431,11 +434,11 @@ public:
         tmpType.get()->type = TBlockItemList;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -448,11 +451,11 @@ public:
         tmpType.get()->type = TBlockItem;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -466,11 +469,11 @@ public:
         tmpType.get()->type = TStmt;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -483,11 +486,11 @@ public:
         tmpType.get()->type = TIfBlock;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -500,11 +503,11 @@ public:
         tmpType.get()->type = TWhileBlock;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -527,11 +530,11 @@ public:
         id = std::string(id_);
         value = 0;
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         return value;
     }
 };
@@ -556,11 +559,11 @@ public:
         value = 0;
         type = 0;
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         return value;
     }
 };
@@ -572,11 +575,11 @@ public:
         tmpType.get()->type = TLOrExp;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -589,11 +592,11 @@ public:
         tmpType.get()->type = TCond;
         set_ast_type(tmpType);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -614,11 +617,11 @@ public:
         set_ast_type(tmpType);
         id = std::string(id_);
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         static int a = 0;
         return a;
     }
@@ -639,11 +642,11 @@ public:
         set_ast_type(tmpType);
         value = 0;
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         return value;
     }
 };
@@ -663,11 +666,11 @@ public:
         set_ast_type(tmpType);
         op = -1;
     }
-    std::vector<int> & getValueVectorInt() override{
+    std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;
         return a;
     }
-    int & getValueInt() override{
+    int & getValueInt() {
         return op;
     }
 };
@@ -712,7 +715,6 @@ retVal_t dispatchCond(ASTPtr treeRoot);
 retVal_t dispatchLVal(ASTPtr treeRoot);
 
 // ASTPtr ASTRoot;
-extern ASTPtr ASTRoot;
 void attachNode(ASTPtr father, ASTPtr child);
 void asterr(const char* s);
 void process_array(std::vector<retVal_t>& src, std::vector<retVal_t>& dst, std::string& pattern, std::vector<int>& dims);

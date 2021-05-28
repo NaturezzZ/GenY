@@ -138,16 +138,16 @@ ConstDef_list:
 ConstDef:
     IDENT '=' ConstInitVal { 
         $$ = new DefAST($1);
-        $$->isArray = false;
-        $$->withInitVal = true;
-        $$->isConst = true;
+        ((DefAST*)$$)->isArray = false;
+        ((DefAST*)$$)->withInitVal = true;
+        ((DefAST*)$$)->isConst = true;
         attachNode($$, $3);
     }
     | IDENT Dimensions_list '=' ConstInitVal { 
         $$ = new DefAST($1);
-        $$->isArray = true;
-        $$->withInitVal = true;
-        $$->isConst = true;
+        ((DefAST*)$$)->isArray = true;
+        ((DefAST*)$$)->withInitVal = true;
+        ((DefAST*)$$)->isConst = true;
         attachNode($$, $2);
         attachNode($$, $4);
     }
@@ -227,30 +227,30 @@ VarDef_list:
 VarDef:
     IDENT Dimensions_list {
         $$ = new DefAST($1);
-        $$->isArray = true;
-        $$->withInitVal = false;
-        $$->isConst = false;
+        ((DefAST*)$$)->isArray = true;
+        ((DefAST*)$$)->withInitVal = false;
+        ((DefAST*)$$)->isConst = false;
         attachNode($$, $2);
     }
     | IDENT Dimensions_list '=' InitVal {
         $$ = new DefAST($1);
-        $$->isArray = true;
-        $$->withInitVal = true;
-        $$->isConst = false;
+        ((DefAST*)$$)->isArray = true;
+        ((DefAST*)$$)->withInitVal = true;
+        ((DefAST*)$$)->isConst = false;
         attachNode($$, $2);
         attachNode($$, $4);
     }
     | IDENT {
         $$ = new DefAST($1);
-        $$->isArray = false;
-        $$->withInitVal = false;
-        $$->isConst = false;
+        ((DefAST*)$$)->isArray = false;
+        ((DefAST*)$$)->withInitVal = false;
+        ((DefAST*)$$)->isConst = false;
     }
     | IDENT '=' InitVal {
         $$ = new DefAST($1);
-        $$->isArray = false;
-        $$->withInitVal = true;
-        $$->isConst = false;
+        ((DefAST*)$$)->isArray = false;
+        ((DefAST*)$$)->withInitVal = true;
+        ((DefAST*)$$)->isConst = false;
         attachNode($$, $3);
     }
     ;
@@ -301,6 +301,7 @@ FuncDef:
     }
     | INT IDENT '(' ')' Block {
         $$ = new FuncDefAST($2);
+        fprintf(stderr, "%s\nAAABB\n", $2);
         $$->ast_type()->isReturnInt = true;
         $$->ast_type()->withFuncFParam = false;
         attachNode($$, $5);
@@ -485,17 +486,17 @@ LVal:
 PrimaryExp:
     '(' Exp ')' {
         $$ = new PrimaryExpAST();
-        $$->type = 0;
+        ((PrimaryExpAST*)$$)->type = 0;
         attachNode($$, $2);
     }
     | LVal {
         $$ = new PrimaryExpAST();
-        $$->type = 1;
+        ((PrimaryExpAST*)$$)->type = 1;
         attachNode($$, $1);
     }
     | Number {
         $$ = new PrimaryExpAST();
-        $$->type = 2;
+        ((PrimaryExpAST*)$$)->type = 2;
         attachNode($$, $1);
     }
     ;

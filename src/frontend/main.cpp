@@ -22,6 +22,7 @@ int main(int argc, char** argv){
                     yyout = fopen(argv[i], "w");
                     break;
                 default:
+                    yyout = fopen("a.eeyore", "w");
                     break;
             }
         }

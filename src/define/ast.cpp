@@ -3,6 +3,7 @@
 //
 #include "define/ast.h"
 #include "define/symtab.h"
+using namespace std;
 void attachNode(ASTPtr father, ASTPtr child){
     child->father = father;
     auto it = father->children.begin();
@@ -47,6 +48,7 @@ void dispatchCompUnit(ASTPtr treeRoot){
             auto p = (FuncDefAST*)(node->children[1]);
             std::string id = p->id;
             //check whether function is redefined
+            cerr << id << endl;
             auto it = funcTable.find(id);
             if(it != funcTable.end()) { symerror("the function is redefined"); }
             else{
@@ -67,6 +69,7 @@ void dispatchCompUnit(ASTPtr treeRoot){
             dispatchFuncDef(node->children[0]);
             auto p = (FuncDefAST*)(node->children[0]);
             std::string id = p->id;
+            cerr << id << endl;
             //check whether function is redefined
             auto it = funcTable.find(id);
             if(it != funcTable.end()) { symerror("the function is redefined"); }
@@ -1286,6 +1289,7 @@ void dispatchBlockItem(ASTPtr treeRoot) {
 void dispatchStmt(ASTPtr treeRoot) {
     auto node = (StmtAST*) treeRoot;
     int lastNs = curNsNum;
+//    std::cerr << node->type << std::endl;
     switch (node->type){
         case STIF: {
             curNsNum = maxNsNum;
@@ -1399,6 +1403,7 @@ void dispatchStmt(ASTPtr treeRoot) {
                     symerror("return exp type error");
             }
             tprintf2(buf);
+            break;
         }
         default:
             symerror("Stmt type error");
