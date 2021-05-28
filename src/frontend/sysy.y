@@ -7,6 +7,8 @@
     #include "define/ast.h"
     #include "define/type.h"
     #include "define/util.h"
+    #include "define/symtab.h"
+
     extern int lineno;
     extern FILE*yyout;
     void yyerror(const char*);
@@ -16,7 +18,7 @@
         //void yyerror(const char *s);
         extern int yylex(void);
     }
-    extern BaseAST* root;
+    extern BaseAST* ASTRoot;
 }
 
 %{
@@ -651,7 +653,7 @@ LAndExp:
     }
     | LAndExp OP_AND EqExp {
         $$ = new ExpAST();
-        $$->getValueInt() = BOP_AND;
+        // $$->getValueInt() = BOP_AND;
         attachNode($$, $1);
         attachNode($$, $3);
     }

@@ -4,16 +4,15 @@
 
 #ifndef GENY_AST_H
 #define GENY_AST_H
-#include "define/type.h"
 #include <bits/stdc++.h>
-#include "define/symtab.h"
-#include <utility>
-
 class BaseAST;
 class DefAST;
-
 using ASTPtr = BaseAST* ;
 using ASTPtrList = std::vector<ASTPtr>;
+#include "define/type.h"
+
+#include "define/symtab.h"
+#include <utility>
 
 class BaseAST {
 public:
@@ -41,8 +40,16 @@ public:
     BaseAST(){
         father = this;
     }
-    virtual std::vector<int> & getValueVectorInt() = 0;
-    virtual int & getValueInt() = 0;
+//    virtual std::vector<int> & getValueVectorInt() = 0;
+//    virtual int & getValueInt() = 0;
+    std::vector<int> & getValueVectorInt() {
+        static std::vector<int> a;
+        return a;
+    }
+    int & getValueInt(){
+        static int b = 0;
+        return b;
+    }
 //private:
     TypePtr ast_type_;
 };
