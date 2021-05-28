@@ -47,6 +47,10 @@ public:
     naVarTable_t(){
         maxNaVarNum = 0;
     }
+    void clear(){
+        data.clear();
+        maxNaVarNum = 0;
+    }
     int getIndex(const naVarType & key){
         auto id = key.first;
         auto nsnum = key.second;

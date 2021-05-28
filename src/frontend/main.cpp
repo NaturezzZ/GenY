@@ -16,6 +16,7 @@ int main(int argc, char** argv){
                 case 'S':
                     break;
                 case 'e':
+                    yyin = fopen(argv[i], "r");
                     break;
                 case 'o':
                     i++;
@@ -31,8 +32,20 @@ int main(int argc, char** argv){
             yyin = fopen(argv[i], "r");
         }
     }
-    std::cout << "test" << std::endl;
     yyparse();
+    print_flag1 = true, print_flag2 = false;
+    dispatchRoot(ASTRoot);
+    print_flag1 = false, print_flag2 = true;
+    nsRootTable.clear();
+    funcTable.clear();
+    maxNsNum = 0; // ns numbers < maxNsNum
+    curNsNum = 0;
+    maxtCnt = 0;
+    naVarTable_t naVarTable;
+    varTable.clear(); // index -> property
+    breakDst = 0;
+    continueDst = 0;
+    maxlCnt = 0;
     dispatchRoot(ASTRoot);
     return 0;
 }

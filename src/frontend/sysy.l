@@ -37,7 +37,7 @@ comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 "break"		{ return BREAK; } // wait to realize
 "continue"	{ return CONTINUE; } // wait to realize
 "else"		{ return ELSE; }
-"int" 		{ printf("int\n"); return INT; }
+"int" 		{ return INT; }
 "if"		{ return IF; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }
@@ -56,7 +56,10 @@ comment "//"[^\n]*|("/*"([^\*]|(\*)*[^\*/])*(\*)*"*/")
 				}
 				return INT_CONSTANT;
 			}
-{identifier} 	{ yylval.string_value = yytext; return IDENT; }
+{identifier} 	{   memset(yylval.string_value, 0, sizeof(yylval.string_value));
+                    memcpy(yylval.string_value, yytext, yyleng);
+					// fprintf(stderr, "STRING:%s\n", yylval.string_value);
+					return IDENT; }
 "&&"	{ return OP_AND; }
 "||"	{ return OP_OR; }
 "=="	{ return OP_EQ; }

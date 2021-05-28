@@ -3,7 +3,7 @@
 {
     #include <stdio.h>
     #include <string.h>
-
+    #include <string>
     #include "define/ast.h"
     #include "define/type.h"
     #include "define/util.h"
@@ -27,7 +27,7 @@
 
 %union {
     int		int_value;
-    char *	string_value;
+    char	string_value[100];
     ASTPtr	node;
 };
 
@@ -63,7 +63,7 @@
 %%
 Program:   
     CompUnit {
-        std::cout << "present" << std::endl;
+        // std::cout << "present" << std::endl;
         ASTRoot = new RootAST();
         $$ = ASTRoot;
         ASTRoot->father = ASTRoot;
@@ -301,7 +301,6 @@ FuncDef:
     }
     | INT IDENT '(' ')' Block {
         $$ = new FuncDefAST($2);
-        fprintf(stderr, "%s\nAAABB\n", $2);
         $$->ast_type()->isReturnInt = true;
         $$->ast_type()->withFuncFParam = false;
         attachNode($$, $5);

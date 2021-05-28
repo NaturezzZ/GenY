@@ -4,6 +4,7 @@
 .LSOverride
 *.dSYM
 test.cpp
+frontend
 
 # vscode
 .vscode

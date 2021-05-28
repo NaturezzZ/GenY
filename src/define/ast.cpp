@@ -48,13 +48,15 @@ void dispatchCompUnit(ASTPtr treeRoot){
             auto p = (FuncDefAST*)(node->children[1]);
             std::string id = p->id;
             //check whether function is redefined
-            cerr << id << endl;
-            auto it = funcTable.find(id);
-            if(it != funcTable.end()) { symerror("the function is redefined"); }
-            else{
-                // not redefined, add it into function table
-                funcTable.insert(std::pair<std::string, functabEntry>(id, functabEntry(p->pNum)));
-            }
+//            auto it = funcTable.find(id);
+//            if(it != funcTable.end()) {
+//                cerr << it->first << endl;
+//                symerror("the function is redefined");
+//            }
+//            else{
+//                // not redefined, add it into function table
+//                funcTable.insert(std::pair<std::string, functabEntry>(id, functabEntry(p->pNum)));
+//            }
         }
     }
     else {
@@ -69,14 +71,13 @@ void dispatchCompUnit(ASTPtr treeRoot){
             dispatchFuncDef(node->children[0]);
             auto p = (FuncDefAST*)(node->children[0]);
             std::string id = p->id;
-            cerr << id << endl;
             //check whether function is redefined
-            auto it = funcTable.find(id);
-            if(it != funcTable.end()) { symerror("the function is redefined"); }
-            else{
-                // not redefined, add it into function table
-                funcTable.insert(std::pair<std::string, functabEntry>(id, functabEntry(p->pNum)));
-            }
+//            auto it = funcTable.find(id);
+//            if(it != funcTable.end()) { symerror("the function is redefined"); }
+//            else{
+//                // not redefined, add it into function table
+//                funcTable.insert(std::pair<std::string, functabEntry>(id, functabEntry(p->pNum)));
+//            }
         }
     }
 }
@@ -243,6 +244,7 @@ void dispatchDef(ASTPtr treeRoot) {
             sprintf(buf, "var %d T%d\n", 4*factor, varnum);
             tprintf1(buf);
         }
+        if(curNsNum == 0) return;
         char buf[100]; memset(buf, 0, sizeof(buf));
         for(int i = 0; i < factor; i++){
             int tnum = maxtCnt; maxtCnt++;
@@ -291,6 +293,7 @@ void dispatchDef(ASTPtr treeRoot) {
             tprintf1(buf);
         }
         // TODO: varaiable initialization
+        if(curNsNum == 0) return;
         int tnum = maxtCnt; maxtCnt++;
         char buf[100]; memset(buf, 0, sizeof(buf));
         switchAndCopy(inittmpval, tnum);
