@@ -12,7 +12,6 @@ void attachNode(ASTPtr father, ASTPtr child){
         it++;
     }
     father->children.push_back(child);
-    // }
 }
 
 void dispatchRoot(ASTPtr treeRoot){
@@ -190,6 +189,8 @@ void dispatchDef(ASTPtr treeRoot) {
         auto dimchild = node->children[0];
         auto dimstmp = dispatchDimensionsList(dimchild);
         std::vector<int> dims;
+        int varindex = 0;
+        std::vector<retVal_t> inittmpval;
         int factor = 1;
         for (int i = 0; i < dimstmp.size(); i++) {
             if (std::get<2>(dimstmp[i]) != val_const_) {
@@ -204,10 +205,12 @@ void dispatchDef(ASTPtr treeRoot) {
             auto initchild = node->children[1];
             auto initpattern = dispatchInitVal(initchild, initsrc);
             process_array(initsrc, initdst, initpattern, dims);
+            for(int i = 0; i < factor; i++) inittmpval.push_back(initdst[i]);
             initValue val;
             val.isInit = 1; val.isArray = 1; val.dims = dims; val.value = initdst;
             int varnum = naVarTable.insert(id, curNsNum);
             auto it = varTable.find(varnum);
+            varindex = varnum;
             if(it != varTable.end()) symerror("duplicate define");
             varTable.insert(std::make_pair(varnum, val));
             char buf[100];
@@ -221,10 +224,14 @@ void dispatchDef(ASTPtr treeRoot) {
             std::get<0>(tmpzero) = 0;
             std::get<1>(tmpzero) = -1;
             std::get<2>(tmpzero) = val_const_;
-            for(int i = 0; i < factor; i++) initdst.push_back(tmpzero);
+            for(int i = 0; i < factor; i++) {
+                initdst.push_back(tmpzero);
+                inittmpval.push_back(tmpzero);
+            }
             initValue val;
             val.isInit = 1; val.isArray = 1; val.dims = dims; val.value = initdst;
             int varnum = naVarTable.insert(id, curNsNum);
+            varindex = varnum;
             auto it = varTable.find(varnum);
             if(it != varTable.end()) symerror("duplicate define");
             varTable.insert(std::make_pair(varnum, val));
@@ -233,16 +240,27 @@ void dispatchDef(ASTPtr treeRoot) {
             sprintf(buf, "var %d T%d\n", 4*factor, varnum);
             tprintf1(buf);
         }
-        // TODO: variable array list initialization
+        char buf[100]; memset(buf, 0, sizeof(buf));
+        for(int i = 0; i < factor; i++){
+            int tnum = maxtCnt; maxtCnt++;
+            switchAndCopy(inittmpval[i], tnum);
+            memset(buf, 0, sizeof(buf));
+            sprintf(buf, "T%d[%d] = t%d\n", varindex, i*4, tnum);
+            tprintf2(buf);
+        }
     }
     else{
+        int varindex;
+        retVal_t inittmpval;
         if (node->withInitVal) {
             auto initchild = node->children[0];
             std::vector<retVal_t> initval;
             dispatchInitVal(initchild, initval);
+            inittmpval = initval[0];
             initValue val;
             val.isInit = 1; val.isArray = 0; val.value = initval;
             int varnum = naVarTable.insert(id, curNsNum);
+            varindex = varnum;
             auto it = varTable.find(varnum);
             if(it != varTable.end()) symerror("duplicate define");
             varTable.insert(std::make_pair(varnum, val));
@@ -258,7 +276,9 @@ void dispatchDef(ASTPtr treeRoot) {
             std::get<2>(zerotmp) = val_const_;
             initValue val;
             val.isInit = 1; val.isArray = 0; val.value.push_back(zerotmp);
+            inittmpval = zerotmp;
             int varnum = naVarTable.insert(id, curNsNum);
+            varindex = varnum;
             auto it = varTable.find(varnum);
             if(it != varTable.end()) symerror("duplicate define");
             varTable.insert(std::make_pair(varnum, val));
@@ -268,6 +288,11 @@ void dispatchDef(ASTPtr treeRoot) {
             tprintf1(buf);
         }
         // TODO: varaiable initialization
+        int tnum = maxtCnt; maxtCnt++;
+        char buf[100]; memset(buf, 0, sizeof(buf));
+        switchAndCopy(inittmpval, tnum);
+        sprintf(buf, "T%d = t%d\n", varindex, tnum);
+        tprintf2(buf);
     }
 }
 
