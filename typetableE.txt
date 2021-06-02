@@ -1,0 +1,26 @@
+/*
+     *  0:  SYMBOL                "=" NUMBER BinOp NUMBER
+     *  1:  SYMBOL                "=" NUMBER BinOp SYMBOL
+     *  2:  SYMBOL                "=" SYMBOL BinOp NUMBER
+     *  3:  SYMBOL                "=" SYMBOL BinOp SYMBOL
+     *  4:  SYMBOL                "=" OP SYMBOL
+     *  5:  SYMBOL                "=" OP NUMBER
+     *  6:  SYMBOL                "=" SYMBOL
+     *  7:  SYMBOL                "=" NUMBER
+     *  8:  SYMBOL "[" NUMBER "]" "=" NUMBER
+     *  9:  SYMBOL "[" NUMBER "]" "=" SYMBOL
+     *  10: SYMBOL "[" SYMBOL "]" "=" NUMBER
+     *  11: SYMBOL "[" SYMBOL "]" "=" SYMBOL
+     *  12: SYMBOL                "=" SYMBOL "[" NUMBER "]"
+     *  13: SYMBOL                "=" SYMBOL "[" SYMBOL "]"
+     *  14: "if" SYMBOL LOGICOP NUMBER "goto" LABEL
+     *  15: "goto" LABEL
+     *  16: LABEL ":"
+     *  17: "param" SYMBOL
+     *  18: "call" FUNCTION
+     *  19: SYMBOL "=" "call" FUNCTION
+     *  20: "return" NUMBER
+     *  21: "return" SYMBOL
+     *  22: "return";
+     *  23: SYMBOL		 "=" P%d
+     * */

@@ -4,8 +4,13 @@
 .LSOverride
 *.dSYM
 test.cpp
-frontend
-
+frontend/lex.yy.c
+frontend/sysy.tab.c
+frontend/sysy.tab.hpp
+code
+*.eeyore
+*.tigger
+*.sy
 # vscode
 .vscode
 

@@ -30,8 +30,7 @@ add_compile_definitions(APP_VERSION_MINOR=${PROJECT_VERSION_MINOR})
 add_compile_definitions(APP_VERSION_PATCH=${PROJECT_VERSION_PATCH})
 
 # project include directories
-include_directories(src)
-include_directories(3rdparty/xstl)
+include_directories(.)
 
 # all of C++ source files
 file(GLOB_RECURSE SOURCES_C "src/*.c")
@@ -40,4 +39,4 @@ file(GLOB_RECURSE SOURCES_CXX "src/*.cpp" "src/*.cc" "define/*.cpp" "define/*.cc
 set_source_files_properties(${SOURCES_C} PROPERTIES LANGUAGE CXX )
 
 # executable
-add_executable(frontend ${SOURCES_C} ${SOURCES_CXX})
+add_executable(frontend ${SOURCES_C} ${SOURCES_CXX} midend/midend.cpp midend/midend.h backend/backend.cpp backend/backend.h)
