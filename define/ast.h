@@ -518,11 +518,13 @@ class ExpAST : public BaseAST {
 public:
     std::string id;
     int value;
+    int lineno;
     ExpAST():BaseAST() {
         TypePtr tmpType = std::make_shared<BaseType>();
         tmpType.get()->type = TExp;
         set_ast_type(tmpType);
         value = 0;
+        lineno = 0;
     }
     explicit ExpAST(const char* id_):BaseAST() {
         TypePtr tmpType = std::make_shared<BaseType>();
@@ -530,6 +532,15 @@ public:
         set_ast_type(tmpType);
         id = std::string(id_);
         value = 0;
+        lineno = 0;
+    }
+    explicit ExpAST(const char* id_, int lno):BaseAST() {
+        TypePtr tmpType = std::make_shared<BaseType>();
+        tmpType.get()->type = TExp;
+        set_ast_type(tmpType);
+        id = std::string(id_);
+        value = 0;
+        lineno = lno;
     }
     std::vector<int> & getValueVectorInt() {
         static std::vector<int> a;

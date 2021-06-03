@@ -1,0 +1,21 @@
+1:      VARIABLE "=" NUM
+2:      VARIABLE "=" "malloc" NUM
+3:      FUNCTION "[" NUM "]" "[" NUM "]"
+4:      "end" FUNCTION
+5:      Reg "=" Reg BinOp Reg
+6:      Reg "=" Reg BinOp NUM
+7:      Reg "=" OP Reg
+8:      Reg "=" Reg
+9:      Reg "=" NUM
+10:     Reg "[" NUM "]" "=" Reg
+11:     Reg "=" Reg "[" NUM "]"
+12:     "if" Reg LOGICOP Reg "goto" LABEL
+13:     "goto" LABEL
+14:     LABEL ":"
+15:     "call" FUNCTION
+16:     "return"
+17:     "store" Reg NUM
+18:     "load" NUM Reg
+19:     "load" VARIABLE Reg
+20:     "loadaddr" NUM Reg
+21:     "loadaddr" VARIABLE Reg;

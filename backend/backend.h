@@ -7,6 +7,8 @@
 #include "define/type.h"
 #include <bits/stdc++.h>
 #include "define/ast.h"
-void process_tigger(std::string s);
+void process_tigger(std::string s, int type);
+void dispatchTiggerExp(std::string exp, int type);
+extern int stksize;
 
 #endif //GENY_BACKEND_H

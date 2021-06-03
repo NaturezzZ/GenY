@@ -162,6 +162,7 @@ extern bool print_flag1;
 extern bool print_flag2;
 extern bool print_flag3;
 extern bool print_flag4;
+extern bool print_flag5;
 extern bool funcret;
 void switchAndCopy(retVal_t & obj, int tnum);
 void dectvar(int tnum);

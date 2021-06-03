@@ -11,6 +11,9 @@ code
 *.eeyore
 *.tigger
 *.sy
+*.S
+
+
 # vscode
 .vscode
 

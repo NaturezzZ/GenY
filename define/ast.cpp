@@ -629,6 +629,18 @@ retVal_t dispatchUnaryExp(ASTPtr treeRoot) {
             memset(buf, 0, sizeof(buf));
             sprintf(buf, "t%d = 0", tnum);
             tprintf2(buf, 7);
+            if(node->id == "starttime" || node->id == "stoptime"){
+                // int pnum = maxtCnt; maxtCnt++;
+                // dectvar(pnum);
+                // memset(buf, 0, sizeof(buf));
+                // sprintf(buf, "t%d = %d", pnum, node->lineno);
+                // tprintf2(buf, 7);
+                // memset(buf, 0, sizeof(buf));
+                // sprintf(buf, "param t%d", pnum);
+                // tprintf2(buf, 17);
+                // memset(buf, 0, sizeof(buf));
+                node->id = "_sysy_" + node->id;
+            }
             sprintf(buf, "call f_%s", node->id.c_str());
             tprintf2(buf, 18);
             retVal_t ret;

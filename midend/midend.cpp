@@ -28,14 +28,14 @@ void process_global_decl(std::string funcid){
                 key = make_pair(tvar, t_index);
                 funcmap.insert(std::make_pair(key, i));
                 std::string tig = "v" + std::to_string(i) + " = 0";
-                process_tigger(tig);
+                process_tigger(tig, 1);
                 break;
             }
             case val_Tvar_: {
                 key = make_pair(Tvar, t_index);
                 funcmap.insert(std::make_pair(key, i));
                 std::string tig = "v" + std::to_string(i) + " = 0";
-                process_tigger(tig);
+                process_tigger(tig, 1);
                 break;
             }
             case val_array_: {
@@ -43,7 +43,7 @@ void process_global_decl(std::string funcid){
                 funcmap.insert(std::make_pair(key, i));
                 int array_size = std::get<1>(declvec[i]);
                 std::string tig = "v" + std::to_string(i) + " = malloc " + std::to_string(array_size);
-                process_tigger(tig);
+                process_tigger(tig, 2);
                 break;
             }
             default:
@@ -108,13 +108,13 @@ void process_op(std::string funcid){
     int stacksize = funcStackSize.find(funcid)->second;
     funchead = "f_" + funcid + " [" + std::to_string(funcParamNum.find(funcid)->second)+ "]";
     funchead = funchead + " [" + std::to_string(stacksize) + "]";
-    process_tigger(funchead);
+    process_tigger(funchead, 3);
     int paramindex = 0;
     for(int i = 0; i < s; i++){
         dispatchEeyoreExp(opVec[i], opTypeVec[i], funcid, paramindex);
     }
     std::string funcend = "end f_" + funcid;
-    process_tigger(funcend);
+    process_tigger(funcend, 4);
 }
 
 void dispatchEeyoreExp(std::string exp, int type, std::string funcid, int &paramindex){
@@ -175,7 +175,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             regLoad(v2, t2, funcid, v2);
             ans.clear();
             ans = "t1 = t2 " + std::string(buf) + std::to_string(num2);
-            process_tigger(ans);
+            process_tigger(ans, 6);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -189,7 +189,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             regLoad(v3, t3, funcid, v3);
             ans.clear();
             ans = "t1 = t2 " + std::string(buf) + " t3";
-            process_tigger(ans);
+            process_tigger(ans, 5);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -201,7 +201,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             regLoad(v2, t2, funcid, v2);
             ans.clear();
             ans = "t1 = t2 " + std::string(buf) + " " + std::to_string(num2);
-            process_tigger(ans);
+            process_tigger(ans, 6);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -215,7 +215,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             regLoad(v3, t3, funcid, v3);
             ans.clear();
             ans = "t1 = t2 " + std::string(buf) + " t3";
-            process_tigger(ans);
+            process_tigger(ans, 5);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -227,7 +227,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             regLoad(v2, t2, funcid, v2);
             ans.clear();
             ans = "t1 = " + std::string(buf) + " t2";
-            process_tigger(ans);
+            process_tigger(ans, 7);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -236,8 +236,10 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             sscanf(exp.c_str(), "%c%d = %s %d", &cl, &nl, buf, &num1);
             v1 = getTVar(cl, nl);
             ans.clear();
-            ans = "t1 = " + std::string(buf) + " " + std::to_string(num1);
-            process_tigger(ans);
+            v2 = getTVar('n', num1);
+            regLoad(v2, t2, funcid, v2);
+            ans = "t1 = " + std::string(buf) + " t2";// + std::to_string(num1);
+            process_tigger(ans, 8);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -249,7 +251,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             ans.clear();
             regLoad(v2, t2, funcid, v2);
             ans = "t1 = t2";
-            process_tigger(ans);
+            process_tigger(ans, 8);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -259,7 +261,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             v1 = getTVar(cl, nl);
             ans.clear();
             ans = "t1 = " + std::to_string(num1);
-            process_tigger(ans);
+            process_tigger(ans, 9);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -272,7 +274,7 @@ void dispatchEeyoreExp_LeftSymbol(std::string exp, int type, std::string funcid)
             regLoad(v2, t2, funcid, v3);
             ans.clear();
             ans = "t1 = t2";
-            process_tigger(ans);
+            process_tigger(ans, 8);
             regSave(v1, t1, funcid, v1);
             break;
         }
@@ -321,7 +323,7 @@ void dispatchEeyoreExp_LeftArray(std::string exp, int type, std::string funcid){
             v1 = std::pair<int, int>(Tarray, nl);
             v2 = getTVar('n', num1);
             ans = "t1 = " + std::to_string(num2);
-            process_tigger(ans);
+            process_tigger(ans, 9);
             regSave(v1, t1, funcid, v2);
             break;
         }
@@ -332,9 +334,9 @@ void dispatchEeyoreExp_LeftArray(std::string exp, int type, std::string funcid){
             v2 = getTVar('n', num1);
             v3 = getTVar(c1, n1);
             regLoad(v3, t2, funcid, v3);
-            ans = "t1 = t2";
-            process_tigger(ans);
-            regSave(v1, t1, funcid, v2);
+//            ans = "t1 = t2";
+//            process_tigger(ans, 8);
+            regSave(v1, t2, funcid, v2);
             break;
         }
         case 10:{
@@ -344,7 +346,7 @@ void dispatchEeyoreExp_LeftArray(std::string exp, int type, std::string funcid){
             v2 = getTVar(c1, n1);
             v3 = getTVar('n', num1);
             ans = "t1 = " + std::to_string(num1);
-            process_tigger(ans);
+            process_tigger(ans, 9);
             regSave(v1, t1, funcid, v2);
             break;
         }
@@ -355,9 +357,9 @@ void dispatchEeyoreExp_LeftArray(std::string exp, int type, std::string funcid){
             v2 = getTVar(c1, n1);
             v3 = getTVar(c2, n2);
             regLoad(v3, t2, funcid, v3);
-            ans = "t1 = t2";
-            process_tigger(ans);
-            regSave(v1, t1, funcid, v2);
+//            ans = "t1 = t2";
+//            process_tigger(ans);
+            regSave(v1, t2, funcid, v2);
             break;
         }
         default:{
@@ -379,19 +381,19 @@ void dispatchEeyoreExp_Return(std::string exp, int type, std::string funcid){
         case 20:{
             sscanf(exp.c_str(), "return %d", &num);
             ans = "a0 = " + std::to_string(num);
-            process_tigger(ans);
-            process_tigger("return");
+            process_tigger(ans, 9);
+            process_tigger("return", 16);
             break;
         }
         case 21:{
             sscanf(exp.c_str(), "return %c%d", &cl, &nl);
             v1 = getTVar(cl, nl);
             regLoad(v1, a0, funcid, v1);
-            process_tigger("return");
+            process_tigger("return", 16);
             break;
         }
         case 22:{
-            process_tigger("return");
+            process_tigger("return", 16);
             break;
         }
         default:{
@@ -413,7 +415,7 @@ void dispatchEeyoreExp_Call(std::string exp, int type, std::string funcid){
             memset(buf, 0, sizeof(buf));
             sscanf(exp.c_str(), "call %s", buf);
             ans = "call " + std::string(buf);
-            process_tigger(ans);
+            process_tigger(ans, 15);
             break;
         }
         case 19:{
@@ -421,7 +423,7 @@ void dispatchEeyoreExp_Call(std::string exp, int type, std::string funcid){
             sscanf(exp.c_str(), "%c%d = call %s", &cl, &nl, buf);
             v1 = getTVar(cl, nl);
             ans = "call " + std::string(buf);
-            process_tigger(ans);
+            process_tigger(ans, 15);
             regSave(v1, a0, funcid, v1);
             break;
         }
@@ -444,16 +446,15 @@ void dispatchEeyoreExp_Goto(std::string exp, int type, std::string funcid){
             v1 = getTVar(cl, nl);
             regLoad(v1, t1, funcid, v1);
             ans = "if t1 == x0 goto l" + std::to_string(num);
-            cerr << "abcdefgfedcba" << ans << endl;
-            process_tigger(ans);
+            process_tigger(ans, 12);
             break;
         }
         case 15:{
-            process_tigger(exp);
+            process_tigger(exp, 13);
             break;
         }
         case 16:{
-            process_tigger(exp);
+            process_tigger(exp, 14);
             break;
         }
         default:{
@@ -487,13 +488,11 @@ void dispatchEeyoreExp_Param(std::string exp, int type, std::string funcid, int 
 void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
     cerr << "load register" << endl;
     if(eVar.first == numbervar){
-//        std::string ans = "load ";
-//        ans = ans + std::to_string(eVar.second);
         char buf[10]; memset(buf, 0, sizeof(buf));
         buf[0] = retReg.first;
 //        ans = ans + std::string(buf) + std::to_string(retReg.second);
         std::string ans = std::string(buf) + std::to_string(retReg.second) + " = " + std::to_string(eVar.second);
-        process_tigger(ans);
+        process_tigger(ans, 9);
         return;
     }
 
@@ -615,13 +614,15 @@ void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
                     ans = ans + "loadaddr ";
                     ans = ans + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 20);
                 }
                 else {
                     ans = ans + "load ";
                     ans = ans + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 18);
                 }
-                process_tigger(ans);
+
                 break;
             }
             case Tarray: {
@@ -636,7 +637,7 @@ void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
                     case numbervar: {
                         ans = "s0 = " + std::to_string(pos.second);
 //                        ans = "load " + std::to_string(pos.second) + " s0";
-                        process_tigger(ans);
+                        process_tigger(ans, 9);
                         break;
                     }
                     case tvar: {
@@ -656,20 +657,22 @@ void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
                 if(isptr){
                     ans = "load " + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 18);
                 }
                 else {
                     ans = "loadaddr " + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 20);
                 }
-                process_tigger(ans);
+
 
                 ans.clear();
                 ans = "s0 = s0 + " + std::string(buf) + std::to_string(retReg.second);
-                process_tigger(ans);
+                process_tigger(ans, 5);
 
                 ans.clear();
                 ans = std::string(buf) + std::to_string(retReg.second) + " = s0[0]";
-                process_tigger(ans);
+                process_tigger(ans, 11);
                 break;
             }
             default:
@@ -687,13 +690,14 @@ void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
                     ans = ans + "loadaddr v";
                     ans = ans + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 21);
                 }
                 else {
                     ans = ans + "load v";
                     ans = ans + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 19);
                 }
-                process_tigger(ans);
                 break;
             }
             case Tarray: {
@@ -708,7 +712,7 @@ void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
                     case numbervar: {
                         ans = "s0 = " + std::to_string(pos.second);
 //                        ans = "load " + std::to_string(pos.second) + " s0";
-                        process_tigger(ans);
+                        process_tigger(ans, 9);
                         break;
                     }
                     case tvar: {
@@ -728,20 +732,22 @@ void regLoad(TVar_t eVar, reg_t retReg, std::string funcid, TVar_t pos){
                 if(isptr){
                     ans = "load v" + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 19);
                 }
                 else {
                     ans = "loadaddr v" + std::to_string(index) + " ";
                     ans = ans + std::string(buf) + std::to_string(retReg.second);
+                    process_tigger(ans, 21);
                 }
-                process_tigger(ans);
+
 
                 ans.clear();
                 ans = "s0 = s0 + " + std::string(buf) + std::to_string(retReg.second);
-                process_tigger(ans);
+                process_tigger(ans, 5);
 
                 ans.clear();
                 ans = std::string(buf) + std::to_string(retReg.second) + " = s0[0]";
-                process_tigger(ans);
+                process_tigger(ans, 11);
                 break;
             }
             default:
@@ -837,7 +843,7 @@ void regSave(TVar_t eVar, reg_t saveReg, std::string funcid, TVar_t pos){
                 ans = "store ";
                 ans = ans + saveRegStr;
                 ans = ans + " " + std::to_string(index);
-                process_tigger(ans);
+                process_tigger(ans, 17);
                 break;
             }
             case Tarray: {
@@ -852,7 +858,7 @@ void regSave(TVar_t eVar, reg_t saveReg, std::string funcid, TVar_t pos){
                     case numbervar: {
                         ans = "s0 = " + std::to_string(pos.second);
 //                        ans = "load " + std::to_string(pos.second) + " s0";
-                        process_tigger(ans);
+                        process_tigger(ans, 9);
                         break;
                     }
                     case tvar: {
@@ -870,19 +876,21 @@ void regSave(TVar_t eVar, reg_t saveReg, std::string funcid, TVar_t pos){
                 ans.clear();
                 if(isptr){
                     ans = "load " + std::to_string(index) + " s1";
+                    process_tigger(ans, 18);
                 }
                 else {
                     ans = "loadaddr " + std::to_string(index) + " s1";
+                    process_tigger(ans, 20);
                 }
-                process_tigger(ans);
+
 
                 ans.clear();
                 ans = "s0 = s0 + s1";
-                process_tigger(ans);
+                process_tigger(ans, 5);
 
                 ans.clear();
                 ans = "s0[0] = " + saveRegStr;
-                process_tigger(ans);
+                process_tigger(ans, 10);
                 break;
             }
             default:
@@ -898,11 +906,11 @@ void regSave(TVar_t eVar, reg_t saveReg, std::string funcid, TVar_t pos){
                 ans.clear();
                 ans = "loadaddr v" + std::to_string(index);
                 ans = ans + " s0";
-                process_tigger(ans);
+                process_tigger(ans, 21);
 
                 ans.clear();
                 ans = "s0[0] = " + saveRegStr;
-                process_tigger(ans);
+                process_tigger(ans, 10);
                 break;
             }
             case Tarray: {
@@ -917,7 +925,7 @@ void regSave(TVar_t eVar, reg_t saveReg, std::string funcid, TVar_t pos){
                     case numbervar: {
                         ans = "s0 = " + std::to_string(pos.second);
 //                        ans = "load " + std::to_string(pos.second) + " s0";
-                        process_tigger(ans);
+                        process_tigger(ans, 9);
                         break;
                     }
                     case tvar: {
@@ -935,19 +943,20 @@ void regSave(TVar_t eVar, reg_t saveReg, std::string funcid, TVar_t pos){
                 ans.clear();
                 if(isptr){
                     ans = "load v" + std::to_string(index) + " s1";
+                    process_tigger(ans, 19);
                 }
                 else {
                     ans = "loadaddr v" + std::to_string(index) + " s1";
+                    process_tigger(ans, 21);
                 }
-                process_tigger(ans);
 
                 ans.clear();
                 ans = "s0 = s0 + s1";
-                process_tigger(ans);
+                process_tigger(ans, 5);
 
                 ans.clear();
                 ans = "s0[0] = " + saveRegStr;
-                process_tigger(ans);
+                process_tigger(ans, 10);
                 break;
             }
             default:

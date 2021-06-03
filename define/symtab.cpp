@@ -151,6 +151,7 @@ std::string getInitValString(retVal_t & val) {
 bool funcret = true;
 bool print_flag3 = false;
 bool print_flag4 = false;
+bool print_flag5 = false;
 std::map<std::string, std::vector<retVal_t> > funcVar;
 std::map<std::string, std::vector<std::string> > funcOp;
 std::map<std::string, std::vector<int>> funcOpType;

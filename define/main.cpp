@@ -41,8 +41,18 @@ int main(int argc, char** argv){
     yyparse();
     print_flag1 = true, print_flag2 = true, print_flag3 = false, print_flag4 = false;
     dispatchRoot(ASTRoot);
-    print_flag3 = ise; print_flag4 = ist;
+
+    if(!ise && !ist) {
+        print_flag3 = false;
+        print_flag4 = true;
+        print_flag5 = true;
+    }
+    else {
+        print_flag3 = ise; print_flag4 = ist;
+    }
+
     if(print_flag3) {
+        cerr << "[EEYORE MODE]" << endl;
         nsRootTable.clear();
         funcTable.clear();
         maxNsNum = 0; // ns numbers < maxNsNum
@@ -62,6 +72,12 @@ int main(int argc, char** argv){
         dispatchRoot(ASTRoot);
     }
     if(print_flag4){
+        if(print_flag5){
+            cerr << "[RISC-V MODE]" << endl;
+        }
+        else {
+            cerr << "[TIGGER-V MODE]" << endl;
+        }
         nsRootTable.clear();
         funcTable.clear();
         maxNsNum = 0; // ns numbers < maxNsNum
